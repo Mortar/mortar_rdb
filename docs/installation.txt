@@ -1,7 +1,7 @@
 Installation Instructions
 =========================
 
-The easyiest way to install glc.db is::
+The easiest way to install glc.db is::
 
   easy_install --find-links=http://GLC\\SVN_CHECKOUT:C0alition@ldndev01/eggs-index/ -U glc.db
 

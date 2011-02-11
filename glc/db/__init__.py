@@ -2,7 +2,7 @@ from logging import getLogger
 from sqlalchemy import create_engine as sa_create_engine
 from sqlalchemy import MetaData, Table, exceptions
 from sqlalchemy.engine.reflection import Inspector
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base as sa_declarative_base
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import (
@@ -77,7 +77,6 @@ def registerSession(url=None,
     if engine:
         if echo:
             raise TypeError('Cannot specify echo if an engine is passed')
-        pass
     else:
         engine = create_engine(url,echo=echo)
 
@@ -170,21 +169,26 @@ def getSession(name=u''):
     """
     return getSiteManager().getUtility(ISession,name)()
 
-Base = None
+_bases = {}
 
-def getBase():
+def declarative_base(**kw):
     """
     Return a :obj:`Base` as would be returned by
     :func:`~sqlalchemy.ext.declarative.declarative_base`.
 
-    Only one :obj:`Base` will exist in any single python interpreter.
+    Only one :obj:`Base` will exist for each combination of parameters
+    that this function is called with. If it is called with the same
+    combination of parameters more than once, subsequent calls will
+    return the existing :obj:`Base`.
 
     This method should be used so that even if more than one package
     used by a project defines models, they will all end up in the
     same :class:`~sqlalchemy.schema.MetaData` instance and all have the
     same declarative registry.
     """
-    global Base
-    if Base is None:
-        Base = declarative_base()
-    return Base
+    key = tuple(kw.items())
+    if key in _bases:
+        return _bases[key]
+    base = sa_declarative_base(**kw)
+    _bases[key]=base
+    return base

@@ -1,5 +1,5 @@
 from contextlib import nested
-from glc.db import registerSession, getBase, drop_tables
+from glc.db import registerSession, declarative_base, drop_tables
 from glc.db.controlled import (
     Source,scan,Config,create_repository,validate, ValidationException
     )
@@ -142,9 +142,9 @@ class TestScan(PackageTest):
         # create module
         self.dir.write('somemodule.py',
                        """
-from glc.db import getBase
+from glc.db import declarative_base
 from sqlalchemy import Table, Column, Integer
-class User(getBase()):
+class User(declarative_base()):
   __tablename__ = 'user'
   id = Column('id', Integer, primary_key=True)
 """)
@@ -160,17 +160,17 @@ class User(getBase()):
         package_dir = self.dir.makedir('somepackage',path=True)
         self.dir.write('somepackage/__init__.py',
                        """
-from glc.db import getBase
+from glc.db import declarative_base
 from sqlalchemy import Table, Column, Integer
-class Table1(getBase()):
+class Table1(declarative_base()):
   __tablename__ = 'table1'
   id = Column('id', Integer, primary_key=True)
 """)
         self.dir.write('somepackage/table2.py',
                        """
-from glc.db import getBase
+from glc.db import declarative_base
 from sqlalchemy import Table, Column, Integer
-class Table2(getBase()):
+class Table2(declarative_base()):
   __tablename__ = 'table2'
   id = Column('id', Integer, primary_key=True)
 """)
@@ -196,10 +196,10 @@ config = Config(scan('demo'))
 """)
         self.dir.write('demo/model/table.py',
                        """
-from glc.db import getBase
+from glc.db import declarative_base
 from sqlalchemy import Table, Column, Integer
 
-class Table(getBase()):
+class Table(declarative_base()):
   __tablename__ = 'table'
   id = Column('id', Integer, primary_key=True)
 """)
@@ -240,7 +240,7 @@ if __name__=='__main__':
         # create module
         self.dir.write('somemodule.py',
                        """
-from glc.db import getBase
+from glc.db import declarative_base
 from sqlalchemy import Table, Column, Integer, String, MetaData
 
 # a non-mapped old-style class
@@ -262,7 +262,7 @@ table2 = Table('table2', metadata,
                )
 
 # declarative
-class Model3(getBase()):
+class Model3(declarative_base()):
   __tablename__ = 'table3'
   id = Column('id', Integer, primary_key=True)
 
@@ -275,30 +275,62 @@ class Model3(getBase()):
         compare(['table1','table3'],sorted(s.metadata.tables.keys()))
         compare(repo_path,s.repository.path)
 
+    def test_single_table_inheritance(self):
+        # create a repo
+        repo_path = os.path.join(self.dir.path,'db_versioning')
+        create_repository(repo_path,'Test Repo')
+        # create module
+        self.dir.write('somemodule.py',
+                       """
+from glc.db import declarative_base
+from sqlalchemy import Table, Column, Integer, String, MetaData
+
+# the base
+class BaseThing(declarative_base()):
+  __tablename__ = 'table'
+  id = Column('id', Integer, primary_key=True)
+
+# type 1
+class Type1Thing(BaseThing):
+  foo = Column('foo', Integer)
+
+# type 2
+class Type2Thing(BaseThing):
+  bar = Column('bar', Integer)
+
+""")
+        s = scan('somemodule')
+
+        self.failUnless(isinstance(s,Source))
+        compare(['table'],sorted(s.metadata.tables.keys()))
+        # for fun:
+        compare(['id', 'foo', 'bar'],s.metadata.tables['table'].c.keys())
+        compare(repo_path,s.repository.path)
+
     def test_ignore_imports_from_other_modules(self):
         # create a repo
         repo_path = os.path.join(self.dir.path,'package1','db_versioning')
         create_repository(repo_path,'Test Repo')
 
         self.dir.write('package0/__init__.py',"""
-from glc.db import getBase
+from glc.db import declarative_base
 from sqlalchemy import Table, Column, Integer
-class Model1(getBase()):
+class Model1(declarative_base()):
   __tablename__ = 'table1'
   id = Column('id', Integer, primary_key=True)
 """)
         self.dir.write('package1/__init__.py',"""
-from glc.db import getBase
+from glc.db import declarative_base
 from sqlalchemy import Table, Column, Integer
-class Model2(getBase()):
+class Model2(declarative_base()):
   __tablename__ = 'table2'
   id = Column('id', Integer, primary_key=True)
 from package0 import Model1
 """)
         self.dir.write('package1/subpack/__init__.py',"""
-from glc.db import getBase
+from glc.db import declarative_base
 from sqlalchemy import Table, Column, Integer
-class Model3(getBase()):
+class Model3(declarative_base()):
   __tablename__ = 'table3'
   id = Column('id', Integer, primary_key=True)
 """)
@@ -317,9 +349,9 @@ class Model3(getBase()):
             create_repository(repo_path,'Test Repo')
             
             self.dir.write('package/__init__.py',"""
-from glc.db import getBase
+from glc.db import declarative_base
 from sqlalchemy import Table, Column, Integer
-class Model(getBase()):
+class Model(declarative_base()):
   __tablename__ = 'table'
   id = Column('id', Integer, primary_key=True)
 """)

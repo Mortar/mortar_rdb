@@ -5,12 +5,14 @@ Helpers for unit testing when using :mod:`glc.db`
 import os
 
 from . import (
-    getSession, getBase, drop_tables,
+    getSession, declarative_base, drop_tables,
     registerSession as realRegisterSession
     )
 from glc import db
 from migrate.exceptions import DatabaseAlreadyControlledError
 from migrate.versioning.schema import ControlledSchema
+from sqlalchemy import create_engine
+from sqlalchemy.pool import StaticPool
 
 def registerSession(url=None,
                     name=u'',
@@ -47,7 +49,11 @@ def registerSession(url=None,
     """
 
     if not (url or engine):
-        url = os.environ.get('DB_URL','sqlite://')
+        url = os.environ.get('DB_URL')
+        if url is None:
+            # we use a StaticPool so that the in memory databases
+            # don't leak between individual tests
+            engine = create_engine('sqlite://',poolclass=StaticPool)
         
     realRegisterSession(url,name,engine,echo,transaction,threaded)
     engine = getSession(name).bind
@@ -69,8 +75,8 @@ def registerSession(url=None,
 class TestingBase(object):
     """
     This is a helper class that can either be used to make
-    :func:`~lc.db.getBase` return a new, empty :class:`Base` for
-    testing purposes.
+    :func:`~glc.db.declarative_base` return a new, empty :class:`Base`
+    for testing purposes.
 
     If writing a suite of unit tests, this can be done as follows:
 
@@ -93,16 +99,16 @@ class TestingBase(object):
     .. code-block:: python
     
       with TestingBase():
-          base = getBase()
+          base = declarative_base()
           # your test code here
     """
 
     def __init__(self):
-        self.original = getBase()
-        db.Base = None
+        self.original = db._bases
+        db._bases = {}
 
     def restore(self):
-        db.Base = self.original
+        db._bases = self.original
 
     def __enter__(self):
         return self

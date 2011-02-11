@@ -17,11 +17,11 @@ python package called :mod:`sample` that uses the following model:
 
  ::
 
-  from glc.db import getBase
+  from glc.db import declarative_base
   from glc.db.controlled import Config,scan
   from sqlalchemy import Table, Column, Integer, String
 
-  Base = getBase()
+  Base = declarative_base()
 
   class User(Base):
     __tablename__ = 'user'
@@ -32,10 +32,13 @@ python package called :mod:`sample` that uses the following model:
   config = Config(source)
 
 There's nothing particularly special about this model other than that
-we've used :func:`~glc.db.getBase` to obtain a declarative base rather
-than calling :func:`~sqlalchemy.ext.declarative.declarative_base`.
+we've used :func:`glc.db.declarative_base` to obtain a declarative base rather
+than calling :func:`sqlalchemy.ext.declarative.declarative_base`. This
+means that multiple python packages can all use the same declarative
+base, without having to worry about which package first defines the
+base.
 
-This is so that all tables and models used in our application,
+This also means that all tables and models used in our application,
 regardless of the package they are defined in, can refer to each
 other.
 
@@ -286,12 +289,12 @@ model. These changes result in the following model:
 
  ::
 
-  from glc.db import getBase
+  from glc.db import declarative_base
   from glc.db.controlled import Config, scan 
   from sqlalchemy import Table, Column, Integer, String, ForeignKey
   from sqlalchemy.orm import relationship
 
-  Base = getBase()
+  Base = declarative_base()
 
   class User(Base):
     __tablename__ = 'user'
@@ -413,7 +416,7 @@ tests for the migration script are written first:
 
  ::
 
-  from glc.db import getSession, getBase
+  from glc.db import getSession
   from glc.db.controlled import validate
   from glc.db.testing import registerSession, run_migrations
   from sample.model import User, Company, source, config

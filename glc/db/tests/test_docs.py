@@ -97,7 +97,7 @@ def run_tests(case,run):
 def create_version(globs,ver):
     # a lot of work, but we need to do it
     # as reload simply doesn't fly :-/
-    db.Base = None
+    db._bases = {}
     dir = globs['dir']
     s = 'sample'+str(ver)
     copytree(dir.getpath('sample'),dir.getpath(s))

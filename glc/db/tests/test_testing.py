@@ -2,14 +2,15 @@ import os
 
 from glc.db.controlled import create_repository
 from glc.db.testing import registerSession, TestingBase, run_migrations
-from glc.db import getSession, getBase
+from glc.db import getSession, declarative_base
 from glc.db.controlled import Config,Source
 from glc.testing.component import TestComponents
 from migrate.exceptions import DatabaseNotControlledError
 from migrate.versioning.schema import ControlledSchema
 from mock import Mock
+from sqlalchemy.pool import StaticPool
 from sqlalchemy.engine.reflection import Inspector
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative import declarative_base as sa_declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String
@@ -28,7 +29,7 @@ class TestRegisterSessionFunctional(TestCase):
         self.dir.cleanup()
         
     def test_functional(self):
-        Base = declarative_base()
+        Base = sa_declarative_base()
         class Model(Base):
             __tablename__ = 'model'
             id = Column('id', Integer, primary_key=True)
@@ -42,7 +43,7 @@ class TestRegisterSessionFunctional(TestCase):
         session.commit()
 
     def test_functional_metadata(self):
-        Base = declarative_base()
+        Base = sa_declarative_base()
         class Model(Base):
             __tablename__ = 'model'
             id = Column('id', Integer, primary_key=True)
@@ -65,7 +66,7 @@ class TestRegisterSessionFunctional(TestCase):
             'sqlite:///'+os.path.join(self.dir.path,'test.db')
             )
 
-        Base = declarative_base()
+        Base = sa_declarative_base()
 
         class Model1(Base):
             __tablename__ = 'model1'
@@ -107,7 +108,7 @@ class TestRegisterSessionFunctional(TestCase):
         compare(session.query(Model2).count(),0)
 
     def test_only_some_packages(self):
-        Base = declarative_base()
+        Base = sa_declarative_base()
         
         class Model1(Base):
             __tablename__ = 'model1'
@@ -135,9 +136,11 @@ class TestRegisterSessionCalls(TestCase):
     def setUp(self):
         self.components = TestComponents()
         self.r = Replacer()
-        self.realRegisterSession = Mock()
+        self.m = Mock()
         self.r.replace('glc.db.testing.realRegisterSession',
-                       self.realRegisterSession)
+                       self.m.realRegisterSession)
+        self.r.replace('glc.db.testing.create_engine',
+                       self.m.create_engine)
         # mock out for certainty
         # self.r.replace('glc.db.testing.???',Mock())
         # mock out for table destruction
@@ -156,8 +159,12 @@ class TestRegisterSessionCalls(TestCase):
         self.r.replace('os.environ',dict())
         registerSession()
         compare([
-                (('sqlite://', u'', None, False, True, True), {}),
-                ],self.realRegisterSession.call_args_list)
+            ('create_engine',
+             ('sqlite://',),
+             {'poolclass': StaticPool}),
+            ('realRegisterSession',
+             (None, u'', self.m.create_engine.return_value, False, True, True), {}),
+            ],self.m.method_calls)
 
     def test_specified_params(self):
         registerSession(
@@ -168,8 +175,9 @@ class TestRegisterSessionCalls(TestCase):
             threaded=False,
             )
         compare([
-                (('x://', u'foo', None, True, False, False), {}),
-                ],self.realRegisterSession.call_args_list)
+                ('realRegisterSession',
+                 ('x://', u'foo', None, True, False, False), {}),
+                ],self.m.method_calls)
 
     def test_engine_passed(self):
         engine = object()
@@ -177,8 +185,9 @@ class TestRegisterSessionCalls(TestCase):
             engine=engine,
             )
         compare([
-                ((None, u'', engine, False, True, True), {}),
-                ],self.realRegisterSession.call_args_list)
+                ('realRegisterSession',
+                 (None, u'', engine, False, True, True), {}),
+                ],self.m.method_calls)
 
     def test_url_from_environment(self):
         self.r.replace('os.environ',dict(
@@ -186,8 +195,9 @@ class TestRegisterSessionCalls(TestCase):
                 ))
         registerSession()
         compare([
-                (('x://', u'', None, False, True, True), {}),
-                ],self.realRegisterSession.call_args_list)
+                ('realRegisterSession',
+                 ('x://', u'', None, False, True, True), {}),
+                ],self.m.method_calls)
 
     def test_engine_overrides_environment(self):
         self.r.replace('os.environ',dict(
@@ -196,27 +206,28 @@ class TestRegisterSessionCalls(TestCase):
         engine = object()
         registerSession(engine=engine)
         compare([
-                ((None, u'', engine, False, True, True), {}),
-                ],self.realRegisterSession.call_args_list)
+                ('realRegisterSession',
+                 (None, u'', engine, False, True, True), {}),
+                ],self.m.method_calls)
 
 class TestTestingBase(TestCase):
 
     def test_manual(self):
-        b1 = getBase()
+        b1 = declarative_base()
         tb = TestingBase()
-        b2 = getBase()
+        b2 = declarative_base()
         tb.restore()
-        b3 = getBase()
+        b3 = declarative_base()
         # checks
         self.failIf(b1 is b2)
         self.failIf(b3 is b2)
         self.failUnless(b1 is b3)
 
     def test_context_manager(self):
-        b1 = getBase()
+        b1 = declarative_base()
         with TestingBase():
-            b2 = getBase()
-        b3 = getBase()
+            b2 = declarative_base()
+        b3 = declarative_base()
         # checks
         self.failIf(b1 is b2)
         self.failIf(b3 is b2)
