@@ -1,3 +1,0 @@
-[console_scripts]
-glc_db_create = glc.db.controlled:create_main
-
