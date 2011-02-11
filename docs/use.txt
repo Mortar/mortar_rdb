@@ -1,0 +1,541 @@
+Basic Usage
+===========
+
+This narrative documentation covers the use case of developing an
+application from scratch that uses :mod:`glc.db` to interact with a
+relational database through initial development and testing to making
+changes to a schema once an application has been deployed.
+
+Development
+-----------
+
+For this narrative, we'll assume we're developing our application in a
+python package called :mod:`sample` that uses the following model:
+
+.. topic:: sample/model.py
+ :class: write-file
+
+ ::
+
+  from glc.db import getBase
+  from glc.db.controlled import Config,scan
+  from sqlalchemy import Table, Column, Integer, String
+
+  Base = getBase()
+
+  class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(20))
+
+  source = scan('sample')
+  config = Config(source)
+
+There's nothing particularly special about this model other than that
+we've used :func:`~glc.db.getBase` to obtain a declarative base rather
+than calling :func:`~sqlalchemy.ext.declarative.declarative_base`.
+
+This is so that all tables and models used in our application,
+regardless of the package they are defined in, can refer to each
+other.
+
+To allow us to take advantage of the schema controls provided by
+:mod:`glc.db`, we have also defined a :class:`~glc.db.controlled.Config`
+with a :class:`~glc.db.controlled.Source` returned from a
+:func:`~glc.db.controlled.scan`. The source is defined seperately to
+the configuration for two reasons:
+
+- it allows a configuration in another package to use the source defined
+  here, which encapsulates all the tables managed by this package.
+
+- it makes it easier to write tests for migration scripts for the 
+  tables managed by this package.
+
+.. highlight:: bash
+
+Because we have opted to use a configuration, we must create a
+repository to contain migration scripts for use by that
+configuration. This can be done with the :command:`glc_db_create`
+utility that :mod:`glc.db` provides::
+
+  $ bin/glc_db_create repo --package sample
+  Created repository with id 'sample' at:
+  /sample/db_versioning
+
+.. highlight:: python
+
+To use the above model, we have the following view code:
+
+.. topic:: sample/views.py
+ :class: write-file
+
+ ::
+
+   from glc.db import getSession
+   from sample.model import User
+   
+   def add_user(name):
+       session = getSession()
+       session.add(User(name=name))
+
+   def edit_user(id,name):
+       session = getSession()
+       user = session.query(User).filter(User.id == id).one()
+       user.name = name
+
+When using :mod:`glc.db`, the session is obtained by calling
+:func:`glc.db.getSession`. This allows the provision of the session to
+be independent of its use, which makes testing and deploying to
+different environments easier.
+
+It is also advised that application code does not manage committing or
+rollback of database transactions via the session unless absolutely
+necessary. These actions should be the responsibility of the framework
+running the application.
+
+For the purposes of this narrative, we will use the following micro
+framework:
+
+.. topic:: sample/run.py
+ :class: write-file
+
+ ::
+
+   from glc.db import registerSession
+   from sample import views
+   from sample.config import db_url
+   from sample.model import config
+
+   import sys 
+   import transaction
+
+   def main():
+       registerSession(db_url,config=config)
+       name = sys.argv[1]
+       args = sys.argv[2:]
+       with transaction:
+           getattr(views,name)(*args)
+       print "Ran %r with %r"%(name,args)
+
+   if __name__=='__main__':
+       main()  
+
+Although there's not much to it, the above framework shows the
+elements you will need to plug in to whatever framework you choose to
+use.
+
+The main one of these is the call to :func:`~glc.db.registerSession`
+which sets up the components necessary for :func:`~glc.db.getSession` to
+return a :class:`~sqlalchemy.orm.session.Session` object.
+
+The example framework is also shown to manage these sessions using the
+:mod:`transaction` package. Should your framework not use this
+package, you are strongly suggested to read the documentation for
+:func:`~glc.db.registerSession` in detail to make sure you pass the
+correct parameters to get the behaviour required by your framework.
+
+Testing
+-------
+
+It's alway a good idea to write automated tests, preferably before
+writing the code under test. :mod:`glc.db` aids this by providing the
+:mod:`glc.db.testing` module.
+
+The following example shows how to provides minimal coverage using
+:func:`glc.db.testing.registerSession` and illustrated how the
+abstraction of configuring a session from obtaining a session in
+:mod:`glc.db` makes testing easier:
+
+.. topic:: sample/tests.py
+ :class: write-file
+
+ ::
+
+  from glc.db import getSession
+  from glc.db.testing import registerSession
+  from sample.model import User, config
+  from sample.views import add_user, edit_user
+  from unittest import TestCase
+
+  class Tests(TestCase):
+
+       def setUp(self):
+           registerSession(config=config)
+
+       def test_add_user(self):
+           # code under test
+           add_user('Mr Test')
+           # checks
+           session = getSession()
+           user = session.query(User).one()
+           self.assertEqual('Mr Test',user.name)
+
+       def test_edit_user(self):
+           # setup
+           session = getSession()
+           session.add(User(id=1,name='Mr Chips'))
+           # code under test
+           edit_user('1','Mr Fish')
+           # checks
+           user = session.query(User).one()
+           self.assertEqual('Mr Fish',user.name)
+
+Release
+-------
+
+With the application developed and tested, it is now time to release
+and deploy it. Users of :mod:`glc.db` are encouraged to create a small
+database management script making use of
+:class:`glc.db.controlled.Scripts`.
+
+Here's is an example for the above model:
+
+.. topic:: sample/db.py
+ :class: write-file
+
+ ::
+
+   from glc.db.controlled import Scripts
+   from sample.config import db_url,is_production
+   from sample.model import config
+   
+   scripts = Scripts(db_url,config,not is_production)
+
+   if __name__=='__main__':
+       scripts()
+
+.. invisible-code-block: python
+
+  # now that we've got all files in disk, create a version
+  # and run the tests
+  create_version(1)
+  from sample1.tests import Tests
+  run_tests(Tests,2)
+
+.. highlight:: bash
+
+This script can be used to create all tables required by the
+applications :class:`~glc.db.controlled.Config` as follows::
+
+  $ bin/db create
+  For database at sqlite:////test.db:
+
+  Repository at:
+  /sample/db_versioning
+  Creating the following tables:
+  user
+  Setting database version to:
+  0
+
+At any time, it can be used to verify that the database
+schema is as expected by the software::
+
+  $ bin/db check
+  For database at sqlite:////test.db:
+
+  Repository at:
+  /sample/db_versioning
+  Version is correctly at 0.
+  All tables are correct.
+
+Other commands are are provided by :class:`~glc.db.controlled.Scripts`
+and both the command line help, obtained with the ``--help`` option to
+either the script or any of its commands, and documentation are well
+worth a read.
+
+So, the view code, database model, tests and framework are all now
+ready and the database has been created. The framework is now ready to
+use::
+
+  $ bin/run add_user test
+  Ran 'add_user' with ['test']
+
+.. highlight:: python
+
+Development Iteration
+---------------------
+
+Database schemas used in applications inevitably change over time. For
+the purposes of this narrative, lets assume that we now want to
+optionally associate each user with the company they work for. The
+views required are shown below:
+
+.. topic:: sample/views.py
+ :class: write-file
+
+ ::
+
+   from glc.db import getSession
+   from sample.model import User
+   
+   def add_user(name):
+       session = getSession()
+       session.add(User(name=name))
+
+   def edit_user(old_name,new_name,company=None):
+       session = getSession()
+       user = session.query(User).filter(User.name == old_name).one()
+       user.name = new_name
+       user.company = company
+
+This change in functionality requires changes to the database
+model. These changes result in the following model:
+
+.. topic:: sample/model.py
+ :class: write-file
+
+ ::
+
+  from glc.db import getBase
+  from glc.db.controlled import Config, scan 
+  from sqlalchemy import Table, Column, Integer, String, ForeignKey
+  from sqlalchemy.orm import relationship
+
+  Base = getBase()
+
+  class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(20), index=True)
+    company_id = Column(Integer, ForeignKey('company.id'))
+    company = relationship("Company")
+
+  class Company(Base):
+    __tablename__ = 'company'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(20))
+
+  source = scan('sample')
+  config = Config(source)
+
+Since the views and model have changed, so have the tests. The minimal
+tests for the new model are shown below:
+
+.. topic:: sample/tests.py
+ :class: write-file
+
+ ::
+
+  from glc.db import getSession
+  from glc.db.testing import registerSession
+  from sample.model import User, Company, config
+  from sample.views import add_user, edit_user
+  from unittest import TestCase
+
+  class Tests(TestCase):
+
+       def setUp(self):
+           registerSession(config=config)
+
+       def test_add_user(self):
+           # code under test
+           add_user('Mr Test')
+           # checks
+           session = getSession()
+           user = session.query(User).one()
+           self.assertEqual('Mr Test',user.name)
+           self.failUnless(user.company is None)
+
+       def test_edit_user(self):
+           # setup
+           session = getSession()
+           session.add(User(id=1,name='Mr Chips'))
+           # code under test
+           edit_user('Mr Chips','Mr Fish')
+           # checks
+           user = session.query(User).one()
+           self.assertEqual('Mr Fish',user.name)
+           self.failUnless(user.company is None)
+
+       def test_edit_user_add_company(self):
+           # setup
+           session = getSession()
+           session.add(User(id=1,name='Mr Chips'))
+           company = Company(id=1,name='The Fish & Chip Shop')
+           session.add(company)
+           # code under test
+           edit_user('Mr Chips','Mr Fish',company)
+           # checks
+           user = session.query(User).one()
+           self.assertEqual('Mr Fish',user.name)
+           self.failUnless(user.company is company)
+
+.. invisible-code-block: python
+
+  create_version(2)
+
+  # run tests
+  from sample2.tests import Tests
+  run_tests(Tests,3)
+
+Migration
+---------
+
+Okay, so we now have a new version of the application. But, we have a
+database that contains the old version of the application's
+schema. This problem is often overlooked or hacked around by manually
+editing the schema of the database.
+
+:mod:`glc.db` provides tools to help with this and safeguards that
+prevent accidentally using the wrong version of software with a
+database.
+
+.. highlight:: bash
+
+For example, if an attempt is made to use the new application with
+an old database, an exception will be raised::
+
+  $ bin/run edit_user test test_changed
+  ...traceback...
+  <ValidationException>
+  Repository at:
+  /sample/db_versioning
+  Schema diffs:
+    tables missing from database: company
+    table with differences: user
+      database missing these columns: company_id
+  </ValidationException>
+
+So, a migration script is needed. This is created with
+:command:`glc_db_create` as follows::
+
+  $ bin/glc_db_create script --package sample add_company
+  Created script for version 1 at:
+  /sample/db_versioning/versions/001_add_company.py
+
+.. highlight:: python
+
+To illustrate the way things **should** be done, this time round the
+tests for the migration script are written first:
+
+.. topic:: sample/test_migrations.py
+ :class: write-file
+
+ ::
+
+  from glc.db import getSession, getBase
+  from glc.db.controlled import validate
+  from glc.db.testing import registerSession, run_migrations
+  from sample.model import User, Company, source, config
+  from sqlalchemy import Table, MetaData
+  from sqlalchemy.schema import Index
+  from unittest import TestCase
+
+  class Tests(TestCase):
+
+
+       def test_add_company(self):
+           # create all the tables in their new form
+           registerSession(config=config,transaction=False)
+           # now, manipulate the schema to be as it was
+           session = getSession()
+           # copy the tables to be changed to avoid messing with
+           # the model.
+           metadata = MetaData()
+           metadata.bind = engine = session.bind
+           Company.__table__.tometadata(metadata)
+           User.__table__.tometadata(metadata)
+
+           metadata.tables['company'].drop()
+           columns = metadata.tables['user'].c
+           columns.company_id.drop()
+           Index('ix_user_name',columns.name).drop()
+          
+           # run the migration
+           run_migrations(engine,source.repository,0,1)
+       
+           # verify the changes have worked
+           validate(engine,config)
+           # validate doesn't check indexes yet, and some
+           # databases create indexes on foreign keys
+           self.assertTrue(
+               len(Table(
+                   'user', MetaData(), autoload=True, autoload_with=engine
+                   ).indexes)
+                 >= 
+               1
+               )
+
+Where tests for more than one migration script exist in the same
+suite, you will need to take care to ensure that the schema of the
+test database is brought to the right state at the start of the test.
+
+In the above example, we take the "current" model and manipulate the
+schema backwards from that. However, if the model is changed further
+after the above test has been written, the test itself may well need
+to be changed. Firstly, it will need to do more work to get the test
+database into the right state. Secondly, it may need to pass a
+different :class:`~glc.db.controlled.Config` to validate as the result
+of running the test will not be the "current" model's schema.
+
+For this reason, it is recommended that you only keep migration
+scripts and their tests around in your source control while they are
+actually needed.
+
+Now that the tests are written, writing the migration script is simply
+a case of getting the tests to pass. The following migration script
+does that:
+
+.. topic:: sample/db_versioning/versions/001_add_company.py
+ :class: write-file
+
+ ::
+
+  from sample.model import Company,User,Column
+  from sqlalchemy import MetaData,Table, Column, Integer, ForeignKey
+  from sqlalchemy.schema import Index 
+
+  def upgrade(migrate_engine):
+      # a metadata collection for use during migration
+      metadata = MetaData()
+      metadata.bind = migrate_engine
+      # copy the table to the migration metadata
+      Company.__table__.tometadata(metadata)
+      # reflect the current state of the user table
+      user = Table('user',metadata,autoload=True)      
+
+      # do the migrations     
+      metadata.tables['company'].create()
+      Index('ix_user_name',user.c.name).create()
+      # http://www.sqlite.org/faq.html#q11
+      Column('company_id',Integer,ForeignKey('company.id')).create(user)
+
+  def downgrade(migrate_engine):
+      raise NotImplementedError()
+
+It is highly recommended to reflect the state of the database when
+doing migrations, as has been done with the ``user`` table above,  so
+that the migration script will work with whatever is currently in the
+database.
+
+Examples of the full range of changes that can be made using
+:mod:`sqlalchemy-migrate` can be found here:
+
+http://packages.python.org/sqlalchemy-migrate/changeset.html
+
+.. invisible-code-block: python
+
+  create_version(3)
+
+  # run tests
+  from sample3.test_migrations import Tests
+  run_tests(Tests,1)
+
+.. highlight:: bash
+
+So, the migration script now exists and has been tested. It can now be
+used to upgrade the application's database::
+
+  $ bin/db upgrade
+  For database at sqlite:////test.db:
+
+  Repository at:
+  /sample/db_versioning
+  0 -> 1 (/sample/db_versioning/versions/001_add_company.py)
+  done
+
+And finally, we can now use the new application code as it was
+intended::
+
+  $ bin/run edit_user test test_changed
+  Ran 'edit_user' with ['test', 'test_changed']

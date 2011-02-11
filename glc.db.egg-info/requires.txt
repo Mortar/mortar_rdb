@@ -1,0 +1,11 @@
+argparse
+SQLAlchemy >= 0.6.4
+sqlalchemy-migrate
+zope.component
+zope.interface
+zope.sqlalchemy
+setuptools
+glc.testing
+mock
+manuel
+testfixtures

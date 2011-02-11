@@ -1,0 +1,84 @@
+Sequences
+=========
+
+Many applications require non-repeating sequences of integer numbers.
+While some database engines provide structures for this purpose, others,
+such as MySQL and SQLite do not.
+
+Alternatively, you may wish to have a more global source of unique
+integer identifiers that you share across several database servers.
+
+For either of these cases, you can use the sequence support provided
+by :mod:`glc.db`.
+
+Usage is very simple. During application configuration, register
+sequences at the same time as you register the session to use for a
+database:
+
+.. invisible-code-block: python
+
+  # so we get the tables created without needing
+  # a migrate repository.
+  from glc.db import registerSession, getSession
+  from glc.db.sequence.generic import sequences
+  import transaction
+  registerSession(db_url,'setup')
+  with transaction:
+    session = getSession('setup')
+    sequences.create(session.bind)
+
+.. code-block:: python
+
+  from glc.db import registerSession, getSession
+  from glc.db.sequence import registerSequence
+
+  import transaction
+
+  registerSession(db_url)
+  with transaction:
+      session = getSession()
+      registerSequence('seq1',session)
+      registerSequence('seq2',session)
+
+You'll notice that you need to manage a database transasction when you
+call :func:`~glc.db.sequence.registerSequence`, either using the
+:mod:`transaction` package or by manually calling
+:meth:`~sqlalchemy.orm.session.Session.commit` after the call. This is
+because registering a sequence, certainly in the default
+:class:`~glc.db.sequence.generic.SequenceImplementation`, may require
+creating a row in a table.
+
+Once registered, whenever you need some unique integers in application
+code, get hold of the sequence and call its
+:meth:`~glc.db.interfaces.ISequence.next` method::
+
+  >>> from glc.db import getSession
+  >>> from glc.db.sequence import getSequence
+  >>> seq1 = getSequence('seq1')
+  >>> seq2 = getSequence('seq2')
+  >>> session = getSession()
+  >>> seq1.next(session)
+  1
+  >>> seq1.next(session)
+  2
+  >>> seq1.next(session)
+  3
+  >>> seq2.next(session)
+  1
+
+.. note:: The default implementation used by
+  :func:`~glc.db.sequence.registerSequence` is 
+  :class:`glc.db.sequence.generic.SequenceImplementation`.
+
+  This uses a table called ``sequences`` in the database which needs
+  to be created before 
+  your first call :func:`~glc.db.sequence.registerSequence`. If you
+  are using :mod:`glc.db.controlled` then you can use the source from
+  ``glc.db.sequence.generic.source`` as part of your
+  :class:`~glc.db.controlled.Config` to take care of table creation
+  and schema migration.
+
+  Also, please note that this implementation may cause contention on
+  the table in question. If your database engine provides native
+  sequences, an implementation that used those would be gratefully
+  received!

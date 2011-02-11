@@ -1,0 +1,41 @@
+Development
+===========
+
+.. highlight:: bash
+
+Once you've obtained a source checkout, you can follow these
+instructions to perform various development tasks:
+
+Setting up the buildout
+-----------------------
+
+All development requires that you run the buildout::
+
+  $ python bootstrap.py
+  $ bin/buildout
+
+Running the tests
+-----------------
+
+Once you have a buildout, the tests can be run as follows::
+
+  $ bin/test
+
+Building the documentation
+--------------------------
+
+The Sphinx documentation is built by doing the following from the
+directory containg setup.py::
+
+  $ cd docs
+  $ make html
+
+Making a release
+----------------
+
+Before you attempt to make a release, please make sure all tests pass
+and documentation is correct.
+
+Once you are certain, a release is made by simply doing::
+
+  $ bin/release
