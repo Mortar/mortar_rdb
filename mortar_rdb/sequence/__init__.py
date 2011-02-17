@@ -2,8 +2,8 @@
 Database independent provision of non-repeating, always-incrementing
 sequences of integers.
 """
-from glc.db import getSession
-from glc.db.interfaces import ISequence
+from mortar_rdb import getSession
+from mortar_rdb.interfaces import ISequence
 from zope.component import getSiteManager
 from .generic import SequenceImplementation
 
@@ -23,9 +23,9 @@ def registerSequence(name,session,impl=SequenceImplementation):
 
     :param impl:
        A class whose instances implement
-       :class:`~glc.db.interfaces.ISequence`.
+       :class:`~mortar_rdb.interfaces.ISequence`.
        Defaults to
-       :class:`glc.db.sequence.generic.SequenceImplementation`.
+       :class:`mortar_rdb.sequence.generic.SequenceImplementation`.
        
     """
     getSiteManager().registerUtility(
@@ -37,7 +37,7 @@ def registerSequence(name,session,impl=SequenceImplementation):
 def getSequence(name):
     """
     Obtain a previously registered sequence.
-    Once obtained, the :meth:`~glc.db.interfaces.ISequence.next`
+    Once obtained, the :meth:`~mortar_rdb.interfaces.ISequence.next`
     method should be called as many times as necessary.
 
     Each call will return one system-wide unique integer that will be

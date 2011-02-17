@@ -1,5 +1,5 @@
-from glc.db import registerSession
-from glc.db.interfaces import ISession
+from mortar_rdb import registerSession
+from mortar_rdb.interfaces import ISession
 from mock import Mock
 from testfixtures import (
     Replacer, Comparison as C, compare, ShouldRaise
@@ -12,14 +12,14 @@ class TestUtility(TestCase):
     def setUp(self):
         self.r = Replacer()
         self.m = Mock()
-        self.r.replace('glc.db.create_engine',self.m.create_engine)
+        self.r.replace('mortar_rdb.create_engine',self.m.create_engine)
         self.engine = self.m.create_engine.return_value
-        self.r.replace('glc.db.validate',self.m.validate)
-        self.r.replace('glc.db.scoped_session',self.m.scoped_session)
+        self.r.replace('mortar_rdb.validate',self.m.validate)
+        self.r.replace('mortar_rdb.scoped_session',self.m.scoped_session)
         self.ScopedSession = self.m.scoped_session.return_value
-        self.r.replace('glc.db.sessionmaker',self.m.sessionmaker)
+        self.r.replace('mortar_rdb.sessionmaker',self.m.sessionmaker)
         self.Session = self.m.sessionmaker.return_value
-        self.r.replace('glc.db.getSiteManager',self.m.getSiteManager)
+        self.r.replace('mortar_rdb.getSiteManager',self.m.getSiteManager)
         self.m.getSiteManager.return_value = self.m.registry
 
     def tearDown(self):

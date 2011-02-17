@@ -5,7 +5,7 @@ A corollary of that is that it is important to be able to update the
 structure of a database from the form expected by one version of the
 code to that expected by another version of the code.
 
-:mod:`glc.db.controlled` aims to facilitate this along with providing
+:mod:`mortar_rdb.controlled` aims to facilitate this along with providing
 a command line harness for creating necessary tables within a
 database, emptying out a non-production database and upgrading a
 database to a new structure where :mod:`SQLAlchemy` is
@@ -18,7 +18,7 @@ Packages, Models and Tables
 are mapped to one or more model classes. These objects are defined
 within python packages
 
-:mod:`glc.db.controlled` makes the assumption that each package that
+:mod:`mortar_rdb.controlled` makes the assumption that each package that
 defines any :class:`~sqlalchemy.schema.Table` will have one
 :mod:`sqlalchemy-migrate` repository and this repository will be
 responsible for looking after the versioning of all tables defined
@@ -33,13 +33,13 @@ table definitions for storing users and their permission. That package
 may be used by an application which also contains a package that
 defines its own tables.
 
-A :class:`~glc.db.controlled.Config` is a way of expressing
+A :class:`~mortar_rdb.controlled.Config` is a way of expressing
 which tables should be expected and which :mod:`sqlalchemy-migrate`
 repositories should contain controls for those tables for a particular
 database.
 
 It general, it is recommended that a
-:class:`~glc.db.controlled.Config` is defined once, in whatever
+:class:`~mortar_rdb.controlled.Config` is defined once, in whatever
 package 'owns' a particular database. For example, an application may
 define a configuration for its own tables and those of any packages on
 which it relies, such as the hypothetical authentication package
@@ -205,7 +205,7 @@ class Source:
 
 def scan(package,tables=(),repository_path=default_repo_name):
     """Scan a package or module and return a
-    :class:`~glc.db.controlled.Source` containing the tables from any
+    :class:`~mortar_rdb.controlled.Source` containing the tables from any
     declaratively mapped models found, any
     :class:`~sqlalchemy.schema.Table` objects explicitly passed in and
     the :mod:`sqlalchemy-migrate` repository contained within the
@@ -222,10 +222,10 @@ def scan(package,tables=(),repository_path=default_repo_name):
 
     :param tables:
           A sequence of :class:`~sqlalchemy.schema.Table` objects to
-          be added to the returned :class:`~glc.db.controlled.Source`.
+          be added to the returned :class:`~mortar_rdb.controlled.Source`.
           Any tables not created as part of declaratively mapping a
           class will need to be passed in using this sequence as
-          :func:`~glc.db.controlled.scan` cannot sensibly scan for
+          :func:`~mortar_rdb.controlled.scan` cannot sensibly scan for
           these objects.
           
     :param repository_path:
@@ -303,7 +303,7 @@ class Config:
 
 class ValidationException(Exception):
     """
-    An exception raised when validation with :func:`~glc.db.validate`
+    An exception raised when validation with :func:`~mortar_rdb.validate`
     fails. In addition to a string representation that describes the
     problems found, it also has several useful attributes:
 
@@ -410,7 +410,7 @@ class Scripts:
     a database. You should instantiate this in small python script and
     call it when the script is run as a command, eg::
 
-      from glc.db.controlled import Scripts
+      from mortar_rdb.controlled import Scripts
       from sample.model import config
 
       scripts = Scripts('sqlite://',config,True)

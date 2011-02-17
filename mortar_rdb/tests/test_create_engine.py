@@ -1,4 +1,4 @@
-from glc.db import create_engine
+from mortar_rdb import create_engine
 from mock import Mock
 from testfixtures import Replacer, compare
 from unittest import TestCase
@@ -8,7 +8,7 @@ class TestUtility(TestCase):
     def setUp(self):
         self.r = Replacer()
         self.sa_create_engine = Mock()
-        self.r.replace('glc.db.sa_create_engine',self.sa_create_engine)
+        self.r.replace('mortar_rdb.sa_create_engine',self.sa_create_engine)
 
     def tearDown(self):
         self.r.restore()

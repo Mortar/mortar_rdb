@@ -1,6 +1,6 @@
-from glc.db.controlled import create_repository
-from glc.db import create_engine
-from glc.db.controlled import (
+from mortar_rdb.controlled import create_repository
+from mortar_rdb import create_engine
+from mortar_rdb.controlled import (
     create_main, Scripts, Config, Source
     )
 from migrate.versioning.schema import ControlledSchema

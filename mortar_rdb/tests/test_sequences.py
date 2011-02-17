@@ -1,9 +1,9 @@
-from glc.db import drop_tables, getSession, registerSession
-from glc.db.controlled import Config
-from glc.db.sequence import registerSequence, getSequence
-from glc.db.sequence.generic import source,sequences
-from glc.db.testing import registerSession as test_registerSession
-from glc.testing.component import TestComponents
+from mortar_rdb import drop_tables, getSession, registerSession
+from mortar_rdb.controlled import Config
+from mortar_rdb.sequence import registerSequence, getSequence
+from mortar_rdb.sequence.generic import source,sequences
+from mortar_rdb.testing import registerSession as test_registerSession
+from testfixtures.components import TestComponents
 from sqlalchemy.exc import ProgrammingError,OperationalError
 from testfixtures import TempDirectory,compare,ShouldRaise
 from unittest import TestCase

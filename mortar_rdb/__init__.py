@@ -19,7 +19,7 @@ from zope.sqlalchemy.datamanager import STATUS_CHANGED
 from .controlled import validate
 from .interfaces import ISession
 
-logger = getLogger('glc.db')
+logger = getLogger('mortar_rdb')
 
 def registerSession(url=None,
                     name=u'',
@@ -61,7 +61,7 @@ def registerSession(url=None,
       as appropriate, yourself. 
 
     :param config: This is an options parameter that should be a
-      :class:`~glc.db.controlled.Config` instance. Any config passed
+      :class:`~mortar_rdb.controlled.Config` instance. Any config passed
       will be used to verify that the schema expected by the software
       matches that in the database. If it does not, an exception will be
       raised.

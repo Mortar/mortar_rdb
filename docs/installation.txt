@@ -1,14 +1,14 @@
 Installation Instructions
 =========================
 
-The easiest way to install glc.db is::
+The easiest way to install mortar_rdb is::
 
-  easy_install --find-links=http://GLC\\SVN_CHECKOUT:C0alition@ldndev01/eggs-index/ -U glc.db
+  easy_install mortar_rdb
 
-Or, if you're using `zc.buildout`, just specify ``gc.db`` as a
+Or, if you're using `zc.buildout`, just specify ``mortar_rdb`` as a
 required egg. 
 
-If you're developing a package or application that relies on glc.db,
+If you're developing a package or application that relies on mortar_rdb,
 then add it as a dependency in your package's :file:`setup.py`, for example::
 
   from setuptools import setup, find_packages
@@ -16,10 +16,13 @@ then add it as a dependency in your package's :file:`setup.py`, for example::
   setup(
      # ...
     install_requires = [
-        'glc.db',
+        'mortar_rdb',
        ])
 
 .. note:: 
 
   This package requires Python 2.6 or newer, but does not work Python
-  3 or above. It also requires :mod:`SQLAlchemy` 0.6.4 or above.
+  3 or above. 
+
+  It also requires :mod:`SQLAlchemy` 0.6.4 or above and
+  :mod:`sqlachemy-migrate` 0.6.1 or above.

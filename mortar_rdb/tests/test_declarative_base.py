@@ -1,4 +1,4 @@
-from glc.db import declarative_base
+from mortar_rdb import declarative_base
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from testfixtures import Replacer, ShouldRaise
@@ -13,7 +13,7 @@ class TestGetBase(TestCase):
         self.r.restore()
         
     def test_first_call(self):
-        self.r.replace('glc.db._bases',{})
+        self.r.replace('mortar_rdb._bases',{})
         b1 = declarative_base()
         b2 = declarative_base()
         self.assertTrue(isinstance(b1,DeclarativeMeta))
@@ -21,7 +21,7 @@ class TestGetBase(TestCase):
 
     def test_existing_base(self):
         base = object()
-        self.r.replace('glc.db._bases',{():base})
+        self.r.replace('mortar_rdb._bases',{():base})
         self.assertTrue(base is declarative_base())
 
     def test_arguments(self):

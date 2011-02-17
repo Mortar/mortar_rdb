@@ -1,8 +1,8 @@
 if False:
-    from glc.db import getSession
-    from glc.db.mixins.versioned import Versioned
-    from glc.db.testing import registerSession
-    from glc.testing.component import TestComponents
+    from mortar_rdb import getSession
+    from mortar_rdb.mixins.versioned import Versioned
+    from mortar_rdb.testing import registerSession
+    from testfixtures.components import TestComponents
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.schema import Column, ForeignKey
     from sqlalchemy.sql.expression import and_

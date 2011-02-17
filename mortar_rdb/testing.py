@@ -1,5 +1,5 @@
 """
-Helpers for unit testing when using :mod:`glc.db`
+Helpers for unit testing when using :mod:`mortar_rdb`
 """
 
 import os
@@ -8,11 +8,12 @@ from . import (
     getSession, declarative_base, drop_tables,
     registerSession as realRegisterSession
     )
-from glc import db
 from migrate.exceptions import DatabaseAlreadyControlledError
 from migrate.versioning.schema import ControlledSchema
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
+
+import mortar_rdb
 
 def registerSession(url=None,
                     name=u'',
@@ -25,7 +26,7 @@ def registerSession(url=None,
     """
     This will register a session for testing purposes.
     
-    The calling parameters mirror those of :func:`glc.db.registerSession`
+    The calling parameters mirror those of :func:`mortar_rdb.registerSession`
     but if neither `url` nor `engine` is specified then:
 
     - The environment will be consulted for a variable called ``DB_URL``.
@@ -34,7 +35,7 @@ def registerSession(url=None,
     - If `url` is still `None`, an implicit `url` of ``sqlite://`` will
       be used.
 
-    If a :class:`~glc.db.controlled.Config` is passed in then, once
+    If a :class:`~mortar_rdb.controlled.Config` is passed in then, once
     any existing content in the database has been removed, any tables
     controlled by that config will be created.
 
@@ -75,14 +76,14 @@ def registerSession(url=None,
 class TestingBase(object):
     """
     This is a helper class that can either be used to make
-    :func:`~glc.db.declarative_base` return a new, empty :class:`Base`
+    :func:`~mortar_rdb.declarative_base` return a new, empty :class:`Base`
     for testing purposes.
 
     If writing a suite of unit tests, this can be done as follows:
 
     .. code-block:: python
 
-      from glc.db.testing import TestingBase
+      from mortar_rdb.testing import TestingBase
       from unittest import TestCase
       
       class YourTestCase(TestCase):
@@ -104,11 +105,11 @@ class TestingBase(object):
     """
 
     def __init__(self):
-        self.original = db._bases
-        db._bases = {}
+        self.original = mortar_rdb._bases
+        mortar_rdb._bases = {}
 
     def restore(self):
-        db._bases = self.original
+        mortar_rdb._bases = self.original
 
     def __enter__(self):
         return self

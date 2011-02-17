@@ -1,5 +1,5 @@
-from glc.db import create_engine, drop_tables
-from glc.db.controlled import (
+from mortar_rdb import create_engine, drop_tables
+from mortar_rdb.controlled import (
     create_main, Scripts, Config, Source
     )
 from migrate.exceptions import (
@@ -252,7 +252,7 @@ class TestCreate(ScriptsMixin,RepoTest):
     def test_create_engine_used(self):
         with Replacer() as r:
             mock = Mock()
-            r.replace('glc.db.create_engine',mock)
+            r.replace('mortar_rdb.create_engine',mock)
             self.config=None
             self._callable()
             mock.assert_called_with(self.db_url)
@@ -487,7 +487,7 @@ Setting database version to:
         self._check_db(0)
         
     def test_not_matching(self):
-        self.r.replace('glc.db.controlled.Scripts._validate',
+        self.r.replace('mortar_rdb.controlled.Scripts._validate',
                        lambda a: False)
         
         self._check('control','''
@@ -550,7 +550,7 @@ Version was 0, should be 1.
     def test_right_versions_but_differences(self):
         def _validate(self):
             print "_validate output"
-        self.r.replace('glc.db.controlled.Scripts._validate',
+        self.r.replace('mortar_rdb.controlled.Scripts._validate',
                        _validate)
         ControlledSchema.create(
             self.engine,

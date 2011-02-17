@@ -2,9 +2,8 @@ from cStringIO import StringIO
 from doctest import REPORT_NDIFF,ELLIPSIS
 from functools import partial
 from glob import glob
-from glc import db
-from glc.db.controlled import create_main
-from glc.db.testing import TestingBase
+from mortar_rdb.controlled import create_main
+from mortar_rdb.testing import TestingBase
 from manuel import doctest,capture,codeblock
 from manuel.testing import TestSuite
 from os.path import dirname,join,pardir,splitext
@@ -54,7 +53,7 @@ class Execute(Manuel):
             getattr(obj,func)()
     
         commands = {
-            'bin/glc_db_create':(create_main,False),
+            'bin/mortar_rdb_create':(create_main,False),
             'bin/db':(partial(sample_script,'db','scripts'),True),
             'bin/run':(partial(sample_script,'run','main'),True),
             }
@@ -97,7 +96,8 @@ def run_tests(case,run):
 def create_version(globs,ver):
     # a lot of work, but we need to do it
     # as reload simply doesn't fly :-/
-    db._bases = {}
+    import mortar_rdb
+    mortar_rdb._bases = {}
     dir = globs['dir']
     s = 'sample'+str(ver)
     copytree(dir.getpath('sample'),dir.getpath(s))
@@ -137,8 +137,8 @@ def test_suite():
     m += Execute()
     return TestSuite(
         m,
-        join(dirname(__file__),pardir,pardir,pardir,'docs','use.txt'),
-        join(dirname(__file__),pardir,pardir,pardir,'docs','sequences.txt'),
+        join(dirname(__file__),pardir,pardir,'docs','use.txt'),
+        join(dirname(__file__),pardir,pardir,'docs','sequences.txt'),
         setUp = setUp,
         tearDown = tearDown
         )

@@ -2,7 +2,7 @@ Basic Usage
 ===========
 
 This narrative documentation covers the use case of developing an
-application from scratch that uses :mod:`glc.db` to interact with a
+application from scratch that uses :mod:`mortar_rdb` to interact with a
 relational database through initial development and testing to making
 changes to a schema once an application has been deployed.
 
@@ -17,8 +17,8 @@ python package called :mod:`sample` that uses the following model:
 
  ::
 
-  from glc.db import declarative_base
-  from glc.db.controlled import Config,scan
+  from mortar_rdb import declarative_base
+  from mortar_rdb.controlled import Config,scan
   from sqlalchemy import Table, Column, Integer, String
 
   Base = declarative_base()
@@ -32,7 +32,7 @@ python package called :mod:`sample` that uses the following model:
   config = Config(source)
 
 There's nothing particularly special about this model other than that
-we've used :func:`glc.db.declarative_base` to obtain a declarative base rather
+we've used :func:`mortar_rdb.declarative_base` to obtain a declarative base rather
 than calling :func:`sqlalchemy.ext.declarative.declarative_base`. This
 means that multiple python packages can all use the same declarative
 base, without having to worry about which package first defines the
@@ -43,9 +43,9 @@ regardless of the package they are defined in, can refer to each
 other.
 
 To allow us to take advantage of the schema controls provided by
-:mod:`glc.db`, we have also defined a :class:`~glc.db.controlled.Config`
-with a :class:`~glc.db.controlled.Source` returned from a
-:func:`~glc.db.controlled.scan`. The source is defined seperately to
+:mod:`mortar_rdb`, we have also defined a :class:`~mortar_rdb.controlled.Config`
+with a :class:`~mortar_rdb.controlled.Source` returned from a
+:func:`~mortar_rdb.controlled.scan`. The source is defined seperately to
 the configuration for two reasons:
 
 - it allows a configuration in another package to use the source defined
@@ -58,10 +58,10 @@ the configuration for two reasons:
 
 Because we have opted to use a configuration, we must create a
 repository to contain migration scripts for use by that
-configuration. This can be done with the :command:`glc_db_create`
-utility that :mod:`glc.db` provides::
+configuration. This can be done with the :command:`mortar_rdb_create`
+utility that :mod:`mortar_rdb` provides::
 
-  $ bin/glc_db_create repo --package sample
+  $ bin/mortar_rdb_create repo --package sample
   Created repository with id 'sample' at:
   /sample/db_versioning
 
@@ -74,7 +74,7 @@ To use the above model, we have the following view code:
 
  ::
 
-   from glc.db import getSession
+   from mortar_rdb import getSession
    from sample.model import User
    
    def add_user(name):
@@ -86,8 +86,8 @@ To use the above model, we have the following view code:
        user = session.query(User).filter(User.id == id).one()
        user.name = name
 
-When using :mod:`glc.db`, the session is obtained by calling
-:func:`glc.db.getSession`. This allows the provision of the session to
+When using :mod:`mortar_rdb`, the session is obtained by calling
+:func:`mortar_rdb.getSession`. This allows the provision of the session to
 be independent of its use, which makes testing and deploying to
 different environments easier.
 
@@ -104,7 +104,7 @@ framework:
 
  ::
 
-   from glc.db import registerSession
+   from mortar_rdb import registerSession
    from sample import views
    from sample.config import db_url
    from sample.model import config
@@ -127,35 +127,35 @@ Although there's not much to it, the above framework shows the
 elements you will need to plug in to whatever framework you choose to
 use.
 
-The main one of these is the call to :func:`~glc.db.registerSession`
-which sets up the components necessary for :func:`~glc.db.getSession` to
+The main one of these is the call to :func:`~mortar_rdb.registerSession`
+which sets up the components necessary for :func:`~mortar_rdb.getSession` to
 return a :class:`~sqlalchemy.orm.session.Session` object.
 
 The example framework is also shown to manage these sessions using the
 :mod:`transaction` package. Should your framework not use this
 package, you are strongly suggested to read the documentation for
-:func:`~glc.db.registerSession` in detail to make sure you pass the
+:func:`~mortar_rdb.registerSession` in detail to make sure you pass the
 correct parameters to get the behaviour required by your framework.
 
 Testing
 -------
 
 It's alway a good idea to write automated tests, preferably before
-writing the code under test. :mod:`glc.db` aids this by providing the
-:mod:`glc.db.testing` module.
+writing the code under test. :mod:`mortar_rdb` aids this by providing the
+:mod:`mortar_rdb.testing` module.
 
 The following example shows how to provides minimal coverage using
-:func:`glc.db.testing.registerSession` and illustrated how the
+:func:`mortar_rdb.testing.registerSession` and illustrated how the
 abstraction of configuring a session from obtaining a session in
-:mod:`glc.db` makes testing easier:
+:mod:`mortar_rdb` makes testing easier:
 
 .. topic:: sample/tests.py
  :class: write-file
 
  ::
 
-  from glc.db import getSession
-  from glc.db.testing import registerSession
+  from mortar_rdb import getSession
+  from mortar_rdb.testing import registerSession
   from sample.model import User, config
   from sample.views import add_user, edit_user
   from unittest import TestCase
@@ -187,9 +187,9 @@ Release
 -------
 
 With the application developed and tested, it is now time to release
-and deploy it. Users of :mod:`glc.db` are encouraged to create a small
+and deploy it. Users of :mod:`mortar_rdb` are encouraged to create a small
 database management script making use of
-:class:`glc.db.controlled.Scripts`.
+:class:`mortar_rdb.controlled.Scripts`.
 
 Here's is an example for the above model:
 
@@ -198,7 +198,7 @@ Here's is an example for the above model:
 
  ::
 
-   from glc.db.controlled import Scripts
+   from mortar_rdb.controlled import Scripts
    from sample.config import db_url,is_production
    from sample.model import config
    
@@ -218,7 +218,7 @@ Here's is an example for the above model:
 .. highlight:: bash
 
 This script can be used to create all tables required by the
-applications :class:`~glc.db.controlled.Config` as follows::
+applications :class:`~mortar_rdb.controlled.Config` as follows::
 
   $ bin/db create
   For database at sqlite:////test.db:
@@ -241,7 +241,7 @@ schema is as expected by the software::
   Version is correctly at 0.
   All tables are correct.
 
-Other commands are are provided by :class:`~glc.db.controlled.Scripts`
+Other commands are are provided by :class:`~mortar_rdb.controlled.Scripts`
 and both the command line help, obtained with the ``--help`` option to
 either the script or any of its commands, and documentation are well
 worth a read.
@@ -268,7 +268,7 @@ views required are shown below:
 
  ::
 
-   from glc.db import getSession
+   from mortar_rdb import getSession
    from sample.model import User
    
    def add_user(name):
@@ -289,8 +289,8 @@ model. These changes result in the following model:
 
  ::
 
-  from glc.db import declarative_base
-  from glc.db.controlled import Config, scan 
+  from mortar_rdb import declarative_base
+  from mortar_rdb.controlled import Config, scan 
   from sqlalchemy import Table, Column, Integer, String, ForeignKey
   from sqlalchemy.orm import relationship
 
@@ -319,8 +319,8 @@ tests for the new model are shown below:
 
  ::
 
-  from glc.db import getSession
-  from glc.db.testing import registerSession
+  from mortar_rdb import getSession
+  from mortar_rdb.testing import registerSession
   from sample.model import User, Company, config
   from sample.views import add_user, edit_user
   from unittest import TestCase
@@ -379,7 +379,7 @@ database that contains the old version of the application's
 schema. This problem is often overlooked or hacked around by manually
 editing the schema of the database.
 
-:mod:`glc.db` provides tools to help with this and safeguards that
+:mod:`mortar_rdb` provides tools to help with this and safeguards that
 prevent accidentally using the wrong version of software with a
 database.
 
@@ -400,9 +400,9 @@ an old database, an exception will be raised::
   </ValidationException>
 
 So, a migration script is needed. This is created with
-:command:`glc_db_create` as follows::
+:command:`mortar_rdb_create` as follows::
 
-  $ bin/glc_db_create script --package sample add_company
+  $ bin/mortar_rdb_create script --package sample add_company
   Created script for version 1 at:
   /sample/db_versioning/versions/001_add_company.py
 
@@ -416,9 +416,9 @@ tests for the migration script are written first:
 
  ::
 
-  from glc.db import getSession
-  from glc.db.controlled import validate
-  from glc.db.testing import registerSession, run_migrations
+  from mortar_rdb import getSession
+  from mortar_rdb.controlled import validate
+  from mortar_rdb.testing import registerSession, run_migrations
   from sample.model import User, Company, source, config
   from sqlalchemy import Table, MetaData
   from sqlalchemy.schema import Index
@@ -468,7 +468,7 @@ schema backwards from that. However, if the model is changed further
 after the above test has been written, the test itself may well need
 to be changed. Firstly, it will need to do more work to get the test
 database into the right state. Secondly, it may need to pass a
-different :class:`~glc.db.controlled.Config` to validate as the result
+different :class:`~mortar_rdb.controlled.Config` to validate as the result
 of running the test will not be the "current" model's schema.
 
 For this reason, it is recommended that you only keep migration

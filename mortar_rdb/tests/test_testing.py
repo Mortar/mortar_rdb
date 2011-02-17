@@ -1,10 +1,10 @@
 import os
 
-from glc.db.controlled import create_repository
-from glc.db.testing import registerSession, TestingBase, run_migrations
-from glc.db import getSession, declarative_base
-from glc.db.controlled import Config,Source
-from glc.testing.component import TestComponents
+from mortar_rdb.controlled import create_repository
+from mortar_rdb.testing import registerSession, TestingBase, run_migrations
+from mortar_rdb import getSession, declarative_base
+from mortar_rdb.controlled import Config,Source
+from testfixtures.components import TestComponents
 from migrate.exceptions import DatabaseNotControlledError
 from migrate.versioning.schema import ControlledSchema
 from mock import Mock
@@ -137,18 +137,18 @@ class TestRegisterSessionCalls(TestCase):
         self.components = TestComponents()
         self.r = Replacer()
         self.m = Mock()
-        self.r.replace('glc.db.testing.realRegisterSession',
+        self.r.replace('mortar_rdb.testing.realRegisterSession',
                        self.m.realRegisterSession)
-        self.r.replace('glc.db.testing.create_engine',
+        self.r.replace('mortar_rdb.testing.create_engine',
                        self.m.create_engine)
         # mock out for certainty
-        # self.r.replace('glc.db.testing.???',Mock())
+        # self.r.replace('mortar_rdb.testing.???',Mock())
         # mock out for table destruction
         getSession = Mock()
         bind = getSession.return_value.bind
         bind.dialect.inspector.return_value = inspector = Mock()
         inspector.get_table_names.return_value = ()
-        self.r.replace('glc.db.testing.getSession',getSession)
+        self.r.replace('mortar_rdb.testing.getSession',getSession)
 
     def tearDown(self):
         self.r.restore()
@@ -241,7 +241,7 @@ class TestRunMigrations(TestCase):
         repo.create_script('script '+str(number))
         self.dir.write((name,'versions',
                         '00%i_script_%i.py' % (number,number)),"""
-from glc.db.tests.test_testing import ran
+from mortar_rdb.tests.test_testing import ran
 def upgrade(migrate_engine):
     ran.append('%s-%i')
 """ % (name,number))

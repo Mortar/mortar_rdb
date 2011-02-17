@@ -1,37 +1,37 @@
 API Reference
 ========================================
 
-glc.db
+mortar_rdb
 ------
 
-.. automodule:: glc.db
+.. automodule:: mortar_rdb
  :members:
 
-glc.db.controlled
+mortar_rdb.controlled
 -----------------
 
-.. automodule:: glc.db.controlled
+.. automodule:: mortar_rdb.controlled
  :members:
 
-glc.db.testing
+mortar_rdb.testing
 --------------
 
-.. automodule:: glc.db.testing
+.. automodule:: mortar_rdb.testing
  :members:
 
-glc.db.sequence
+mortar_rdb.sequence
 ---------------
 
-.. automodule:: glc.db.sequence
+.. automodule:: mortar_rdb.sequence
  :members:
 
-.. automodule:: glc.db.sequence.generic
+.. automodule:: mortar_rdb.sequence.generic
  :members:
 
-glc.db.interfaces
+mortar_rdb.interfaces
 -----------------
 
-.. automodule:: glc.db.interfaces
+.. automodule:: mortar_rdb.interfaces
 
   .. autointerface:: ISession
 

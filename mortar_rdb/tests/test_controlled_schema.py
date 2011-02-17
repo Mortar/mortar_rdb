@@ -1,10 +1,10 @@
 from contextlib import nested
-from glc.db import registerSession, declarative_base, drop_tables
-from glc.db.controlled import (
+from mortar_rdb import registerSession, declarative_base, drop_tables
+from mortar_rdb.controlled import (
     Source,scan,Config,create_repository,validate, ValidationException
     )
-from glc.db.testing import TestingBase
-from glc.testing.component import TestComponents
+from mortar_rdb.testing import TestingBase
+from testfixtures.components import TestComponents
 from migrate.exceptions import (
     InvalidRepositoryError,
     DatabaseNotControlledError
@@ -109,7 +109,7 @@ class TestSource(TestCase):
             pass
 
         with ShouldRaise(TypeError(S(
-                    "<class glc.db.tests.test_controlled_schema."
+                    "<class mortar_rdb.tests.test_controlled_schema."
                     "SomethingElse at [0-9a-zA-Z]+> must be a "
                     "Table object or a declaratively mapped model class."
                     ))):
@@ -142,7 +142,7 @@ class TestScan(PackageTest):
         # create module
         self.dir.write('somemodule.py',
                        """
-from glc.db import declarative_base
+from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 class User(declarative_base()):
   __tablename__ = 'user'
@@ -160,7 +160,7 @@ class User(declarative_base()):
         package_dir = self.dir.makedir('somepackage',path=True)
         self.dir.write('somepackage/__init__.py',
                        """
-from glc.db import declarative_base
+from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 class Table1(declarative_base()):
   __tablename__ = 'table1'
@@ -168,7 +168,7 @@ class Table1(declarative_base()):
 """)
         self.dir.write('somepackage/table2.py',
                        """
-from glc.db import declarative_base
+from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 class Table2(declarative_base()):
   __tablename__ = 'table2'
@@ -191,12 +191,12 @@ class Table2(declarative_base()):
         self.dir.write('demo/__init__.py','')
         self.dir.write('demo/model/__init__.py',
                        """
-from glc.db.controlled import Config,scan
+from mortar_rdb.controlled import Config,scan
 config = Config(scan('demo'))
 """)
         self.dir.write('demo/model/table.py',
                        """
-from glc.db import declarative_base
+from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 
 class Table(declarative_base()):
@@ -205,7 +205,7 @@ class Table(declarative_base()):
 """)
         self.dir.write('demo/db.py',"""
 from demo.model import config
-from glc.db.controlled import Scripts
+from mortar_rdb.controlled import Scripts
 
 scripts = Scripts(
         'sqlite://',
@@ -240,7 +240,7 @@ if __name__=='__main__':
         # create module
         self.dir.write('somemodule.py',
                        """
-from glc.db import declarative_base
+from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer, String, MetaData
 
 # a non-mapped old-style class
@@ -282,7 +282,7 @@ class Model3(declarative_base()):
         # create module
         self.dir.write('somemodule.py',
                        """
-from glc.db import declarative_base
+from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer, String, MetaData
 
 # the base
@@ -313,14 +313,14 @@ class Type2Thing(BaseThing):
         create_repository(repo_path,'Test Repo')
 
         self.dir.write('package0/__init__.py',"""
-from glc.db import declarative_base
+from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 class Model1(declarative_base()):
   __tablename__ = 'table1'
   id = Column('id', Integer, primary_key=True)
 """)
         self.dir.write('package1/__init__.py',"""
-from glc.db import declarative_base
+from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 class Model2(declarative_base()):
   __tablename__ = 'table2'
@@ -328,7 +328,7 @@ class Model2(declarative_base()):
 from package0 import Model1
 """)
         self.dir.write('package1/subpack/__init__.py',"""
-from glc.db import declarative_base
+from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 class Model3(declarative_base()):
   __tablename__ = 'table3'
@@ -349,7 +349,7 @@ class Model3(declarative_base()):
             create_repository(repo_path,'Test Repo')
             
             self.dir.write('package/__init__.py',"""
-from glc.db import declarative_base
+from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 class Model(declarative_base()):
   __tablename__ = 'table'
@@ -438,7 +438,7 @@ class TestConfig(TestCase):
 class TestValidationException(TestCase):
 
     def setUp(self):
-        from glc.db.controlled import ValidationException
+        from mortar_rdb.controlled import ValidationException
         self.e = ValidationException()
 
     def test_empty(self):

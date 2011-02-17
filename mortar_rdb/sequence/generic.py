@@ -1,4 +1,4 @@
-from glc.db.controlled import Source
+from mortar_rdb.controlled import Source
 from pkg_resources import resource_filename
 from sqlalchemy import MetaData, Table, Column, String, Integer
 from sqlalchemy.sql.expression import select
@@ -56,6 +56,6 @@ class SequenceImplementation:
 
 # using scan here results in import loops :-(
 source = Source(
-    resource_filename('glc.db.sequence','db_versioning'),
+    resource_filename('mortar_rdb.sequence','db_versioning'),
     sequences
     )

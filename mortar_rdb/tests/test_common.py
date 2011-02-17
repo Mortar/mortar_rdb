@@ -1,4 +1,4 @@
-from glc.db.mixins.common import Common
+from mortar_rdb.mixins.common import Common
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import Column
 from sqlalchemy.types import Integer

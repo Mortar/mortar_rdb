@@ -1,6 +1,6 @@
-from glc.db import registerSession, getSession
-from glc.db.interfaces import ISession
-from glc.testing.component import TestComponents
+from mortar_rdb import registerSession, getSession
+from mortar_rdb.interfaces import ISession
+from testfixtures.components import TestComponents
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.session import Session
@@ -244,7 +244,7 @@ class TestUtility(TestCase):
             registerSession('sqlite://')
             
         l.check((
-                'glc.db',
+                'mortar_rdb',
                 'INFO',
                 "Registering session for 'sqlite://' with name u''"
                 ))
@@ -255,7 +255,7 @@ class TestUtility(TestCase):
             registerSession('sqlite://','foo')
             
         l.check((
-                'glc.db',
+                'mortar_rdb',
                 'INFO',
                 "Registering session for 'sqlite://' with name 'foo'"
                 ))

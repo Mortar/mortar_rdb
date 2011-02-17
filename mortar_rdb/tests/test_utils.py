@@ -1,6 +1,6 @@
-from glc.db import getSession
-from glc.db.testing import registerSession
-from glc.db.utils import tometadata
+from mortar_rdb import getSession
+from mortar_rdb.testing import registerSession
+from mortar_rdb.utils import tometadata
 from sqlalchemy import (
     Integer, String, UniqueConstraint, 
     CheckConstraint, ForeignKey, MetaData, Sequence, 
