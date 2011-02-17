@@ -40,7 +40,7 @@ database:
       registerSequence('seq1',session)
       registerSequence('seq2',session)
 
-You'll notice that you need to manage a database transasction when you
+You'll notice that you need to manage a database transaction when you
 call :func:`~mortar_rdb.sequence.registerSequence`, either using the
 :mod:`transaction` package or by manually calling
 :meth:`~sqlalchemy.orm.session.Session.commit` after the call. This is
@@ -72,7 +72,7 @@ code, get hold of the sequence and call its
 
   This uses a table called ``sequences`` in the database which needs
   to be created before 
-  your first call :func:`~mortar_rdb.sequence.registerSequence`. If you
+  you first call :func:`~mortar_rdb.sequence.registerSequence`. If you
   are using :mod:`mortar_rdb.controlled` then you can use the source from
   ``mortar_rdb.sequence.generic.source`` as part of your
   :class:`~mortar_rdb.controlled.Config` to take care of table creation
