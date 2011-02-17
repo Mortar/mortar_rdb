@@ -51,11 +51,15 @@ class Execute(Manuel):
             for name in dotted.split('.'):
                 obj = getattr(obj,name)
             getattr(obj,func)()
+
+        def do_nothing(*args):
+            pass
     
         commands = {
             'bin/mortar_rdb_create':(create_main,False),
             'bin/db':(partial(sample_script,'db','scripts'),True),
             'bin/run':(partial(sample_script,'run','main'),True),
+            'DB_URL=mysql://scott:tiger@localhost/test':(do_nothing,False),
             }
 
         command,args = block.command.split(None,1)

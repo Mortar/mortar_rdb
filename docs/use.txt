@@ -145,7 +145,7 @@ writing the code under test. :mod:`mortar_rdb` aids this by providing the
 :mod:`mortar_rdb.testing` module.
 
 The following example shows how to provides minimal coverage using
-:func:`mortar_rdb.testing.registerSession` and illustrated how the
+:func:`mortar_rdb.testing.registerSession` and illustrates how the
 abstraction of configuring a session from obtaining a session in
 :mod:`mortar_rdb` makes testing easier:
 
@@ -182,6 +182,18 @@ abstraction of configuring a session from obtaining a session in
            # checks
            user = session.query(User).one()
            self.assertEqual('Mr Fish',user.name)
+
+If you wish to run these tests against a particular database, rather
+than using the default in-memory SQLite database, then set the
+``DB_URL`` enviroment variable to the SQLAlchemy url of the database
+you'd like to use. For example, if you run your tests with `nose`__
+and are developing in a unix-like environment against a MySQL
+database, you could do::
+
+  $ DB_URL=mysql://scott:tiger@localhost/test nosetests
+
+
+__ http://somethingaboutorange.com/mrl/projects/nose
 
 Release
 -------
