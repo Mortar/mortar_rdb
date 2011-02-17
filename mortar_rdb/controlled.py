@@ -407,7 +407,7 @@ def validate(engine,config,versions=True):
 class Scripts:
     """
     A command-line harness for performing schema control functions on
-    a database. You should instantiate this in small python script and
+    a database. You should instantiate this in a small python script and
     call it when the script is run as a command, eg::
 
       from mortar_rdb.controlled import Scripts
