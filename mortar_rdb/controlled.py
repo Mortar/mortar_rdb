@@ -72,8 +72,6 @@ from sqlalchemy.engine.reflection import Inspector
 from types import ClassType
 from zope.dottedname.resolve import resolve
 
-from .utils import tometadata
-
 import sys
 
 def create_repository(path,id):
@@ -201,7 +199,7 @@ class Source:
                     'mapped model class.' % (
                         table
                         ))
-            tometadata(table,self.metadata)
+            table.tometadata(self.metadata)
 
 def scan(package,tables=(),repository_path=default_repo_name):
     """Scan a package or module and return a

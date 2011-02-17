@@ -9,7 +9,7 @@ setup(
     zip_safe=False,
     install_requires = (
         'argparse',
-        'SQLAlchemy >= 0.6.4',
+        'SQLAlchemy >= 0.6.5',
         'sqlalchemy-migrate > 0.6',
         'zope.component',
         'zope.interface',
