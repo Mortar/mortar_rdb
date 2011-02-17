@@ -2,25 +2,25 @@ API Reference
 ========================================
 
 mortar_rdb
-------
+----------
 
 .. automodule:: mortar_rdb
  :members:
 
 mortar_rdb.controlled
------------------
+---------------------
 
 .. automodule:: mortar_rdb.controlled
  :members:
 
 mortar_rdb.testing
---------------
+------------------
 
 .. automodule:: mortar_rdb.testing
  :members:
 
 mortar_rdb.sequence
----------------
+-------------------
 
 .. automodule:: mortar_rdb.sequence
  :members:
@@ -29,7 +29,7 @@ mortar_rdb.sequence
  :members:
 
 mortar_rdb.interfaces
------------------
+---------------------
 
 .. automodule:: mortar_rdb.interfaces
 
