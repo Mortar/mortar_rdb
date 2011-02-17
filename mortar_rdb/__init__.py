@@ -60,7 +60,7 @@ def registerSession(url=None,
       :meth:`~sqlalchemy.orm.session.Session.begin`/:meth:`~sqlalchemy.orm.session.Session.commit`/:meth:`~sqlalchemy.orm.session.Session.rollback`,
       as appropriate, yourself. 
 
-    :param config: This is an options parameter that should be a
+    :param config: This is an optional parameter that should be a
       :class:`~mortar_rdb.controlled.Config` instance. Any config passed
       will be used to verify that the schema expected by the software
       matches that in the database. If it does not, an exception will be
