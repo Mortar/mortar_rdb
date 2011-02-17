@@ -441,7 +441,7 @@ tests for the migration script are written first:
 
        def test_add_company(self):
            # create all the tables in their new form
-           registerSession(config=config,transaction=False)
+           registerSession(config=config,transactional=False)
            # now, manipulate the schema to be as it was
            session = getSession()
            # copy the tables to be changed to avoid messing with

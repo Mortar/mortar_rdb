@@ -31,7 +31,7 @@ class TestGeneric(TestCase):
         # set up.
         test_registerSession(self.url,'1',
                              config=Config(source),
-                             transaction=False)
+                             transactional=False)
         # the second one is a normal session, so we don't
         # splat the tables created above.
         # (we need to do it this way 'cos of some sqlite flakeyness
@@ -39,7 +39,7 @@ class TestGeneric(TestCase):
         #  that then tries to use them)
         registerSession(self.url,'2',
                         config=Config(source),
-                        transaction=False)
+                        transactional=False)
 
     def tearDown(self):
         self.dir.cleanup()

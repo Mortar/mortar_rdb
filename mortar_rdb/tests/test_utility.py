@@ -31,7 +31,7 @@ class TestUtility(TestCase):
         self.components.uninstall()
 
     def test_how_to_create(self):
-        registerSession('sqlite://', transaction=False)
+        registerSession('sqlite://', transactional=False)
         # at this stage we have no tables
         session = getSession()
         session.add(self.Model(name='foo'))
@@ -178,7 +178,7 @@ class TestUtility(TestCase):
             
         
     def test_no_transaction(self):
-        registerSession('sqlite://',transaction=False)
+        registerSession('sqlite://',transactional=False)
         
         # check the ZCA stuff
         utility = getSiteManager().getUtility(ISession)
@@ -231,7 +231,7 @@ class TestUtility(TestCase):
     def test_different_sessions_when_async(self):
         
         registerSession('sqlite://',
-                        threaded=False,transaction=False)
+                        scoped=False,transactional=False)
 
         s1 = getSession()
         s2 = getSession()

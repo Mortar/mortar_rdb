@@ -36,7 +36,7 @@ class TestRegisterSessionFunctional(TestCase):
             name = Column('name', String(50))
             
         registerSession(
-            transaction=False,
+            transactional=False,
             config=Config(Source(self.repo.path,Model.__table__)))
         session = getSession()
         session.add(Model(name='foo'))
@@ -50,7 +50,7 @@ class TestRegisterSessionFunctional(TestCase):
             name = Column('name', String(50))
             
         registerSession(
-            transaction=False,
+            transactional=False,
             metadata=Base.metadata
             )
         session = getSession()
@@ -86,7 +86,7 @@ class TestRegisterSessionFunctional(TestCase):
         
         # create in one session
         registerSession(db_path,name='create',
-                        transaction=False,
+                        transactional=False,
                         config=config)
         m1 = Model1()
         m2 = Model2()
@@ -101,7 +101,7 @@ class TestRegisterSessionFunctional(TestCase):
         # now register another session which should
         # blow the above away
         registerSession(db_path,name='read',
-                        transaction=False,
+                        transactional=False,
                         config=config)
         session = getSession('read')
         compare(session.query(Model1).count(),0)
@@ -121,7 +121,7 @@ class TestRegisterSessionFunctional(TestCase):
             name = Column('name', String(50))
             
         registerSession(
-            transaction=False,
+            transactional=False,
             config=Config(Source(self.repo.path,Model1.__table__)))
 
         # only table1 should have been created!
@@ -171,8 +171,8 @@ class TestRegisterSessionCalls(TestCase):
             url='x://',
             name='foo',
             echo=True,
-            transaction=False,
-            threaded=False,
+            transactional=False,
+            scoped=False,
             )
         compare([
                 ('realRegisterSession',

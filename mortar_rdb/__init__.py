@@ -25,8 +25,8 @@ def registerSession(url=None,
                     name=u'',
                     engine=None,
                     echo=False,
-                    transaction=True,
-                    threaded=True,
+                    transactional=True,
+                    scoped=True,
                     config=None):
     """
     Create a :class:`~sqlalchemy.orm.session.Session` class and
@@ -43,18 +43,18 @@ def registerSession(url=None,
       logging framework. This option cannot be specified if you pass in
       an engine.
 
-    :param threaded: If `True`, then :func:`getSession` will return a distinct
+    :param scoped: If `True`, then :func:`getSession` will return a distinct
       session for each thread that it is called from but, within that thread,
       it will always return the same session. If it is `False`, every call
       to :func:`getSession` will return a new session.
     
-    :param transaction:
+    :param transactional:
 
       If `True`, a :mod:`SQLAlchemy` extension will
       be used that that enables the :mod:`transaction` package to
       manage the lifecycle of the SQLAlchemy session (eg:
       :meth:`~sqlalchemy.orm.session.Session.begin`/:meth:`~sqlalchemy.orm.session.Session.commit`/:meth:`~sqlalchemy.orm.session.Session.rollback`).
-      This can only be done when threading is enabled.
+      This can only be done when scoped sessions are used.
 
       If `False`, you will need to make sure you call
       :meth:`~sqlalchemy.orm.session.Session.begin`/:meth:`~sqlalchemy.orm.session.Session.commit`/:meth:`~sqlalchemy.orm.session.Session.rollback`,
@@ -69,9 +69,9 @@ def registerSession(url=None,
     if (engine and url) or not (engine or url):
         raise TypeError('Must specify engine or url, but not both')
 
-    if transaction and not threaded:
+    if transactional and not scoped:
         raise TypeError(
-            'Transactions can only be managed in multi-threaded code'
+            'Transactions can only be managed when using scoped sessions'
             )
         
     if engine:
@@ -93,7 +93,7 @@ def registerSession(url=None,
             autocommit=False,
             )
         
-    if transaction:
+    if transactional:
         params['extension']=ZopeTransactionExtension(
             # We want transactions committed regardless of
             # whether or not we use the ORM.
@@ -104,7 +104,7 @@ def registerSession(url=None,
         
     Session = sessionmaker(**params)
     
-    if threaded:
+    if scoped:
         Session = scoped_session(Session)
     
     getSiteManager().registerUtility(

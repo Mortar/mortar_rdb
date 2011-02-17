@@ -19,8 +19,8 @@ def registerSession(url=None,
                     name=u'',
                     engine=None,
                     echo=False,
-                    transaction=True,
-                    threaded=True,
+                    transactional=True,
+                    scoped=True,
                     config=None,
                     metadata=None):
     """
@@ -56,7 +56,7 @@ def registerSession(url=None,
             # don't leak between individual tests
             engine = create_engine('sqlite://',poolclass=StaticPool)
         
-    realRegisterSession(url,name,engine,echo,transaction,threaded)
+    realRegisterSession(url,name,engine,echo,transactional,scoped)
     engine = getSession(name).bind
     
     drop_tables(engine)

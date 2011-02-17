@@ -86,9 +86,9 @@ class TestUtility(TestCase):
                   'provided': ISession})
                 ],self.m.method_calls)
 
-    def test_not_threaded(self):
+    def test_not_scoped(self):
         registerSession(url='mysql://foo',
-                        threaded=False,transaction=False)
+                        scoped=False,transactional=False)
         compare([
                 ('create_engine', ('mysql://foo',), {'echo':False}),
                 ('sessionmaker',
@@ -103,9 +103,9 @@ class TestUtility(TestCase):
                   'provided': ISession})
                 ],self.m.method_calls)
 
-    def test_threaded_no_transactions(self):
+    def test_scoped_no_transactions(self):
         registerSession(engine=self.m.engine2,
-                        threaded=True,transaction=False)
+                        scoped=True,transactional=False)
         compare([
                 ('sessionmaker',
                  (),
@@ -197,12 +197,12 @@ class TestUtility(TestCase):
         
         compare([],self.m.method_calls)
 
-    def test_transactional_but_not_threaded(self):
+    def test_transactional_but_not_scoped(self):
         with ShouldRaise(
-            TypeError('Transactions can only be managed in multi-threaded code')
+            TypeError('Transactions can only be managed when using scoped sessions')
             ):
             registerSession(url='mysql://',
-                            transaction=True,threaded=False)
+                            transactional=True,scoped=False)
         
         compare([],self.m.method_calls)
 
