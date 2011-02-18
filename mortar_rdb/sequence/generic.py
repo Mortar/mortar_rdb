@@ -1,3 +1,5 @@
+# Copyright (c) 2011 Simplistix Ltd
+# See license.txt for license details.
 from mortar_rdb.controlled import Source
 from pkg_resources import resource_filename
 from sqlalchemy import MetaData, Table, Column, String, Integer

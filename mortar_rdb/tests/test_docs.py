@@ -1,3 +1,6 @@
+# Copyright (c) 2011 Simplistix Ltd
+# See license.txt for license details.
+
 from cStringIO import StringIO
 from doctest import REPORT_NDIFF,ELLIPSIS
 from functools import partial

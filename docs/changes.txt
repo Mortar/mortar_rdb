@@ -1,0 +1,9 @@
+Changes
+=======
+
+.. currentmodule:: mortar_rdb
+
+1.0.0 (18 Feb 2011)
+-------------------
+
+- Initial Release

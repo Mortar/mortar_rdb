@@ -7,8 +7,12 @@ Documentation
    installation.txt
    use.txt
    sequences.txt
+
    api.txt
+
    development.txt
+   changes.txt
+   license.txt
 
 Indices and tables
 ==================

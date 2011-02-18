@@ -1,3 +1,6 @@
+# Copyright (c) 2011 Simplistix Ltd
+# See license.txt for license details.
+
 from datetime import datetime
 from mortar_rdb import getSession
 from mortar_rdb.testing import registerSession

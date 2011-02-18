@@ -1,3 +1,5 @@
+# Copyright (c) 2011 Simplistix Ltd
+# See license.txt for license details.
 """
 When a database is used, it's essential that code using the database
 only interacts with a database that is of the form it expects.

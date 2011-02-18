@@ -1,3 +1,6 @@
+# Copyright (c) 2011 Simplistix Ltd
+# See license.txt for license details.
+
 from mortar_rdb import create_engine
 from mock import Mock
 from testfixtures import Replacer, compare

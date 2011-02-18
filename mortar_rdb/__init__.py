@@ -1,3 +1,6 @@
+# Copyright (c) 2011 Simplistix Ltd
+# See license.txt for license details.
+
 from logging import getLogger
 from sqlalchemy import create_engine as sa_create_engine
 from sqlalchemy import MetaData, Table, exceptions
