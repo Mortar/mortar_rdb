@@ -21,6 +21,14 @@ Once you have a buildout, the tests can be run as follows::
 
   $ bin/test
 
+Some of the tests can be run against a specific database to check
+compatibility with specific database back ends. To do this, set the 
+``DB_URL`` environment variable to the SQLAlchemy url of the database
+you'd like to use. For example, if you are testing in a unix-like
+environment and want to test against a MySQL database, you could do::
+
+  $ DB_URL=mysql://scott:tiger@localhost/mortar_rdb_tests bin/test
+
 Building the documentation
 --------------------------
 
