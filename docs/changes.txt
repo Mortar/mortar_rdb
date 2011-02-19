@@ -3,7 +3,12 @@ Changes
 
 .. currentmodule:: mortar_rdb
 
+1.0.1 (19 Feb 2011)
+-------------------
+
+- Fixed a missing declaration of dependency on :mod:`zope.dottedname`.
+
 1.0.0 (18 Feb 2011)
 -------------------
 
-- Initial Release
+- Initial Release.
