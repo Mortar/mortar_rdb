@@ -9,7 +9,7 @@ base_dir = os.path.dirname(__file__)
 setup(
     name='mortar_rdb',
     author='Chris Withers',
-    version='1.0.0',
+    version='1.0.1dev',
     author_email='chris@simplistix.co.uk',
     license='MIT',
     description="SQLAlchemy, sqlalchemy-migrate and the component architecture tied together for easy use in any framework",
@@ -26,6 +26,7 @@ setup(
         'SQLAlchemy >= 0.6.5',
         'sqlalchemy-migrate > 0.6',
         'zope.component',
+        'zope.dottedname',
         'zope.interface',
         'zope.sqlalchemy',
         ),
