@@ -3,6 +3,17 @@ Changes
 
 .. currentmodule:: mortar_rdb
 
+1.1.0 (27 Feb 2011)
+-------------------
+
+- Allow passing in
+  :class:`~sqlalchemy.orm.interfaces.SessionExtension` instances to
+  both :func:`~mortar_rdb.registerSession` functions.
+
+- Fixed a bug that resulted in an exception when passing ``echo=True``
+  to :func:`mortar_rdb.testing.registerSession` but not passing a
+  ``url``.
+
 1.0.1 (19 Feb 2011)
 -------------------
 
