@@ -17,7 +17,7 @@ from sqlalchemy.ext.declarative import declarative_base as sa_declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import Integer, String
-from testfixtures import Replacer,compare,TempDirectory
+from testfixtures import Replacer,compare,TempDirectory,OutputCapture
 from unittest import TestCase
 
 class TestRegisterSessionFunctional(TestCase):
@@ -59,6 +59,14 @@ class TestRegisterSessionFunctional(TestCase):
         session = getSession()
         session.add(Model(name='foo'))
         session.commit()
+
+    def test_functional_echo_but_no_url(self):
+        with Replacer() as r:
+            # make sure there's no DBURL
+            r.replace('os.environ',dict())
+            # hoover up the logging ;-)
+            with OutputCapture():
+                registerSession(echo=True)
 
     def test_tricky_to_delete(self):
         # respect any DB_URL set here so that
@@ -164,7 +172,8 @@ class TestRegisterSessionCalls(TestCase):
         compare([
             ('create_engine',
              ('sqlite://',),
-             {'poolclass': StaticPool}),
+             {'poolclass': StaticPool,
+              'echo': False}),
             ('realRegisterSession',
              (None, u'', self.m.create_engine.return_value, False, True, True), {}),
             ],self.m.method_calls)
@@ -181,6 +190,20 @@ class TestRegisterSessionCalls(TestCase):
                 ('realRegisterSession',
                  ('x://', u'foo', None, True, False, False), {}),
                 ],self.m.method_calls)
+
+    def test_echo_but_no_url(self):
+        # make sure there's no DBURL
+        self.r.replace('os.environ',dict())
+        registerSession(echo=True)
+        compare([
+            ('create_engine',
+             ('sqlite://',),
+             {'poolclass': StaticPool,
+              'echo': True}),
+            ('realRegisterSession',
+             (None, u'', self.m.create_engine.return_value, False, True, True), {}),
+            ],self.m.method_calls)
+        
 
     def test_engine_passed(self):
         engine = object()

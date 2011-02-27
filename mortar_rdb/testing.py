@@ -56,7 +56,11 @@ def registerSession(url=None,
         if url is None:
             # we use a StaticPool so that the in memory databases
             # don't leak between individual tests
-            engine = create_engine('sqlite://',poolclass=StaticPool)
+            engine = create_engine('sqlite://',
+                                   poolclass=StaticPool,
+                                   echo=echo)
+            # don't confuse the real registerSession
+            echo = False
         
     realRegisterSession(url,name,engine,echo,transactional,scoped)
     engine = getSession(name).bind
