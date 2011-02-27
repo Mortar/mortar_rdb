@@ -70,6 +70,11 @@ def registerSession(url=None,
       will be used to verify that the schema expected by the software
       matches that in the database. If it does not, an exception will be
       raised.
+
+    :param extension: An optional :class:`~sqlalchemy.orm.interfaces.SessionExtension`
+      or sequence of :class:`~sqlalchemy.orm.interfaces.SessionExtension`
+      objects to be used with the session that is registered.
+
     """
     if (engine and url) or not (engine or url):
         raise TypeError('Must specify engine or url, but not both')
