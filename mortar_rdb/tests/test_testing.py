@@ -175,7 +175,7 @@ class TestRegisterSessionCalls(TestCase):
              {'poolclass': StaticPool,
               'echo': False}),
             ('realRegisterSession',
-             (None, u'', self.m.create_engine.return_value, False, True, True), {}),
+             (None, u'', self.m.create_engine.return_value, False, True, True, None, None), {}),
             ],self.m.method_calls)
 
     def test_specified_params(self):
@@ -188,7 +188,7 @@ class TestRegisterSessionCalls(TestCase):
             )
         compare([
                 ('realRegisterSession',
-                 ('x://', u'foo', None, True, False, False), {}),
+                 ('x://', u'foo', None, True, False, False, None, None), {}),
                 ],self.m.method_calls)
 
     def test_echo_but_no_url(self):
@@ -201,7 +201,7 @@ class TestRegisterSessionCalls(TestCase):
              {'poolclass': StaticPool,
               'echo': True}),
             ('realRegisterSession',
-             (None, u'', self.m.create_engine.return_value, False, True, True), {}),
+             (None, u'', self.m.create_engine.return_value, False, True, True, None, None), {}),
             ],self.m.method_calls)
         
 
@@ -212,7 +212,7 @@ class TestRegisterSessionCalls(TestCase):
             )
         compare([
                 ('realRegisterSession',
-                 (None, u'', engine, False, True, True), {}),
+                 (None, u'', engine, False, True, True, None, None), {}),
                 ],self.m.method_calls)
 
     def test_url_from_environment(self):
@@ -222,7 +222,7 @@ class TestRegisterSessionCalls(TestCase):
         registerSession()
         compare([
                 ('realRegisterSession',
-                 ('x://', u'', None, False, True, True), {}),
+                 ('x://', u'', None, False, True, True, None, None), {}),
                 ],self.m.method_calls)
 
     def test_engine_overrides_environment(self):
@@ -233,7 +233,16 @@ class TestRegisterSessionCalls(TestCase):
         registerSession(engine=engine)
         compare([
                 ('realRegisterSession',
-                 (None, u'', engine, False, True, True), {}),
+                 (None, u'', engine, False, True, True, None, None), {}),
+                ],self.m.method_calls)
+
+    def test_extension(self):
+        engine = object()
+        extension = object()
+        registerSession(engine=engine,extension=extension)
+        compare([
+                ('realRegisterSession',
+                 (None, u'', engine, False, True, True, None, extension), {}),
                 ],self.m.method_calls)
 
 class TestTestingBase(TestCase):

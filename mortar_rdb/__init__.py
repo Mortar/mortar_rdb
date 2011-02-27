@@ -8,6 +8,7 @@ from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.ext.declarative import declarative_base as sa_declarative_base
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.interfaces import SessionExtension
 from sqlalchemy.schema import (
     MetaData,
     Table,
@@ -30,7 +31,8 @@ def registerSession(url=None,
                     echo=False,
                     transactional=True,
                     scoped=True,
-                    config=None):
+                    config=None,
+                    extension=None):
     """
     Create a :class:`~sqlalchemy.orm.session.Session` class and
     register it for later use.
@@ -95,15 +97,30 @@ def registerSession(url=None,
             autoflush=True,
             autocommit=False,
             )
-        
+
+    if extension is None:
+        extensions = []
+    else:
+        if isinstance(extension,SessionExtension):
+            extensions = [extension]
+        else:
+            extensions = list(extension)
+
     if transactional:
-        params['extension']=ZopeTransactionExtension(
+        extensions.append(
+            ZopeTransactionExtension(
             # We want transactions committed regardless of
             # whether or not we use the ORM.
             initial_state=STATUS_CHANGED,
-            )
+            ))
         if engine.dialect.name in ('postgresql', 'mysql'):
             params['twophase']=True
+
+    if extensions:
+        if len(extensions)==1:
+            params['extension']=extensions[0]
+        else:
+            params['extension']=extensions
         
     Session = sessionmaker(**params)
     

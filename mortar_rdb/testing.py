@@ -24,7 +24,8 @@ def registerSession(url=None,
                     transactional=True,
                     scoped=True,
                     config=None,
-                    metadata=None):
+                    metadata=None,
+                    extension=None):
     """
     This will register a session for testing purposes.
     
@@ -62,7 +63,16 @@ def registerSession(url=None,
             # don't confuse the real registerSession
             echo = False
         
-    realRegisterSession(url,name,engine,echo,transactional,scoped)
+    realRegisterSession(
+        url,
+        name,
+        engine,
+        echo,
+        transactional,
+        scoped,
+        None,
+        extension
+        )
     engine = getSession(name).bind
     
     drop_tables(engine)

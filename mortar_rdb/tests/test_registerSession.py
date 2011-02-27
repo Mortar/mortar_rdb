@@ -4,6 +4,7 @@
 from mortar_rdb import registerSession
 from mortar_rdb.interfaces import ISession
 from mock import Mock
+from sqlalchemy.orm.interfaces import SessionExtension
 from testfixtures import (
     Replacer, Comparison as C, compare, ShouldRaise
     )
@@ -241,4 +242,118 @@ class TestUtility(TestCase):
         compare([
                 ('create_engine', ('sqlite://foo',), {'echo':False}),
                 ('validate',(self.engine,config),{}),
+                ],self.m.method_calls)
+
+    def test_one_extension(self):
+        class TestExtension(SessionExtension):
+            pass
+        ext = TestExtension()
+        registerSession('mysql://foo',extension=[ext],transactional=False)
+        compare([
+                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('sessionmaker',
+                 (),
+                 {'autocommit': False,
+                  'autoflush': True,
+                  'bind': self.engine,
+                  'extension': ext}),
+                ('scoped_session', (self.Session,), {}),
+                ('getSiteManager', (), {}),
+                ('registry.registerUtility',
+                 (self.ScopedSession,),
+                 {'name': u'',
+                  'provided': ISession})
+                ],self.m.method_calls)
+
+    def test_two_extensions(self):
+        class TestExtension1(SessionExtension):
+            pass
+        class TestExtension2(SessionExtension):
+            pass
+        ext1 = TestExtension1()
+        ext2 = TestExtension2()
+        registerSession('mysql://foo',extension=[ext1,ext2],transactional=False)
+        compare([
+                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('sessionmaker',
+                 (),
+                 {'autocommit': False,
+                  'autoflush': True,
+                  'bind': self.engine,
+                  'extension': [ext1,ext2]}),
+                ('scoped_session', (self.Session,), {}),
+                ('getSiteManager', (), {}),
+                ('registry.registerUtility',
+                 (self.ScopedSession,),
+                 {'name': u'',
+                  'provided': ISession})
+                ],self.m.method_calls)
+
+    def test_one_extension_transactional(self):
+        class TestExtension(SessionExtension):
+            pass
+        ext = TestExtension()
+        registerSession('mysql://foo',extension=[ext])
+        compare([
+                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('sessionmaker',
+                 (),
+                 {'autocommit': False,
+                  'autoflush': True,
+                  'bind': self.engine,
+                  'extension': [ext,C(ZopeTransactionExtension)]}),
+                ('scoped_session', (self.Session,), {}),
+                ('getSiteManager', (), {}),
+                ('registry.registerUtility',
+                 (self.ScopedSession,),
+                 {'name': u'',
+                  'provided': ISession})
+                ],self.m.method_calls)
+
+    def test_two_extensions_transactional(self):
+        class TestExtension1(SessionExtension):
+            pass
+        class TestExtension2(SessionExtension):
+            pass
+        ext1 = TestExtension1()
+        ext2 = TestExtension2()
+        registerSession('mysql://foo',extension=[ext1,ext2,])
+        compare([
+                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('sessionmaker',
+                 (),
+                 {'autocommit': False,
+                  'autoflush': True,
+                  'bind': self.engine,
+                  'extension': [ext1,ext2,C(ZopeTransactionExtension)]}),
+                ('scoped_session', (self.Session,), {}),
+                ('getSiteManager', (), {}),
+                ('registry.registerUtility',
+                 (self.ScopedSession,),
+                 {'name': u'',
+                  'provided': ISession})
+                ],self.m.method_calls)
+
+    def test_two_extensions_transactional_non_list(self):
+        class TestExtension1(SessionExtension):
+            pass
+        class TestExtension2(SessionExtension):
+            pass
+        ext1 = TestExtension1()
+        ext2 = TestExtension2()
+        registerSession('mysql://foo',extension=(ext1,ext2))
+        compare([
+                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('sessionmaker',
+                 (),
+                 {'autocommit': False,
+                  'autoflush': True,
+                  'bind': self.engine,
+                  'extension': [ext1,ext2,C(ZopeTransactionExtension)]}),
+                ('scoped_session', (self.Session,), {}),
+                ('getSiteManager', (), {}),
+                ('registry.registerUtility',
+                 (self.ScopedSession,),
+                 {'name': u'',
+                  'provided': ISession})
                 ],self.m.method_calls)
