@@ -6,7 +6,7 @@ from mortar_rdb.interfaces import ISession
 from mock import Mock
 from sqlalchemy.orm.interfaces import SessionExtension
 from testfixtures import (
-    Replacer, Comparison as C, compare, ShouldRaise
+    Replacer, Comparison as C, compare, ShouldRaise, LogCapture
     )
 from unittest import TestCase
 from zope.sqlalchemy import ZopeTransactionExtension
@@ -357,3 +357,27 @@ class TestUtility(TestCase):
                  {'name': u'',
                   'provided': ISession})
                 ],self.m.method_calls)
+
+    def test_logging_normal(self):
+        self.engine.url='sqlite://'
+        
+        with LogCapture() as l:
+            registerSession('sqlite://')
+            
+        l.check((
+                'mortar_rdb',
+                'INFO',
+                "Registering session for 'sqlite://' with name u''"
+                ))
+
+    def test_logging_name(self):
+        self.engine.url='sqlite://'
+        
+        with LogCapture() as l:
+            registerSession('sqlite://','foo')
+            
+        l.check((
+                'mortar_rdb',
+                'INFO',
+                "Registering session for 'sqlite://' with name 'foo'"
+                ))
