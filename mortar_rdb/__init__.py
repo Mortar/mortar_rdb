@@ -93,9 +93,11 @@ def registerSession(url=None,
     if config is not None:
         validate(engine,config)
 
+    url = str(engine.url)
+    if engine.url.password is not None:
+        url = url.replace(engine.url.password,'<password>')
     logger.info('Registering session for %r with name %r',
-                str(engine.url),
-                name)
+                url,name)
 
     params = dict(
             bind = engine,

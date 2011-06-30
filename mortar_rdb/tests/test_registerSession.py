@@ -18,6 +18,7 @@ class TestUtility(TestCase):
         self.m = Mock()
         self.r.replace('mortar_rdb.create_engine',self.m.create_engine)
         self.engine = self.m.create_engine.return_value
+        self.engine.url.password = None
         self.r.replace('mortar_rdb.validate',self.m.validate)
         self.r.replace('mortar_rdb.scoped_session',self.m.scoped_session)
         self.ScopedSession = self.m.scoped_session.return_value
@@ -108,6 +109,7 @@ class TestUtility(TestCase):
                 ],self.m.method_calls)
 
     def test_scoped_no_transactions(self):
+        self.m.engine2.url.password = 'pass'
         registerSession(engine=self.m.engine2,
                         scoped=True,transactional=False)
         compare([
@@ -125,6 +127,7 @@ class TestUtility(TestCase):
                 ],self.m.method_calls)
 
     def test_engine(self):
+        self.m.engine2.url.password = 'pass'
         registerSession(engine=self.m.engine2)
         compare([
                 ('sessionmaker',
@@ -358,8 +361,16 @@ class TestUtility(TestCase):
                   'provided': ISession})
                 ],self.m.method_calls)
 
+    class MockUrl(Mock):
+        def __init__(self,url,password,parent):
+            Mock.__init__(self,parent=parent)
+            self._url = url
+            self.password = password
+        def __str__(self):
+            return self._url
+            
     def test_logging_normal(self):
-        self.engine.url='sqlite://'
+        self.engine.url=self.MockUrl('sqlite://',None,self.engine)
         
         with LogCapture() as l:
             registerSession('sqlite://')
@@ -370,8 +381,22 @@ class TestUtility(TestCase):
                 "Registering session for 'sqlite://' with name u''"
                 ))
 
+    def test_logging_password(self):
+        self.engine.url=self.MockUrl('mysql://user:pass@localhost/db',
+                                     'pass',
+                                     self.engine)
+        
+        with LogCapture() as l:
+            registerSession('sqlite://')
+            
+        l.check((
+                'mortar_rdb',
+                'INFO',
+                "Registering session for 'mysql://user:<password>@localhost/db' with name u''"
+                ))
+
     def test_logging_name(self):
-        self.engine.url='sqlite://'
+        self.engine.url=self.MockUrl('sqlite://',None,self.engine)
         
         with LogCapture() as l:
             registerSession('sqlite://','foo')
