@@ -9,7 +9,7 @@ base_dir = os.path.dirname(__file__)
 setup(
     name='mortar_rdb',
     author='Chris Withers',
-    version='1.2.0',
+    version='1.2.1',
     author_email='chris@simplistix.co.uk',
     license='MIT',
     description="SQLAlchemy, sqlalchemy-migrate and the component architecture tied together for easy use in any framework",

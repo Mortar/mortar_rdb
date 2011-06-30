@@ -3,6 +3,12 @@ Changes
 
 .. currentmodule:: mortar_rdb
 
+1.2.1 (30 Jun 2011)
+-------------------
+
+- Add :mod:`setuptools_git` to the build chain so that
+  :mod:`setuptools` `include_package_data` works once more.
+
 1.2.0 (30 Jun 2011)
 -------------------
 
