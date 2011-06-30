@@ -32,7 +32,8 @@ def registerSession(url=None,
                     transactional=True,
                     scoped=True,
                     config=None,
-                    extension=None):
+                    extension=None,
+                    twophase=True):
     """
     Create a :class:`~sqlalchemy.orm.session.Session` class and
     register it for later use.
@@ -74,6 +75,11 @@ def registerSession(url=None,
     :param extension: An optional :class:`~sqlalchemy.orm.interfaces.SessionExtension`
       or sequence of :class:`~sqlalchemy.orm.interfaces.SessionExtension`
       objects to be used with the session that is registered.
+
+    :param twophase: By default two-phase transactions are used where
+      supported by the underlying database. Where this causes problems,
+      single-phase transactions can be used for all engines by passing this
+      parameter as `False`.
 
     """
     if (engine and url) or not (engine or url):
@@ -120,7 +126,7 @@ def registerSession(url=None,
             # whether or not we use the ORM.
             initial_state=STATUS_CHANGED,
             ))
-        if engine.dialect.name in ('postgresql', 'mysql'):
+        if twophase and engine.dialect.name in ('postgresql', 'mysql'):
             params['twophase']=True
 
     if extensions:

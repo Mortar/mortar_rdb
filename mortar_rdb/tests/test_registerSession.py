@@ -72,6 +72,26 @@ class TestUtility(TestCase):
                   'provided': ISession})
                 ],self.m.method_calls)
 
+    def test_no_twophase(self):
+        self.engine.dialect.name='postgresql'
+        registerSession(url='postgres://foo',twophase=False)
+        compare([
+                ('create_engine', ('postgres://foo',), {'echo':False}),
+                ('sessionmaker',
+                 (),
+                 {'autocommit': False,
+                  'autoflush': True,
+                  'bind': self.engine,
+                  'extension': C(ZopeTransactionExtension),
+                  },),
+                ('scoped_session', (self.Session,), {}),
+                ('getSiteManager', (), {}),
+                ('registry.registerUtility',
+                 (self.ScopedSession,),
+                 {'name': u'',
+                  'provided': ISession})
+                ],self.m.method_calls)
+
     def test_sqlite(self):
         registerSession(url='sqlite://foo')
         compare([
