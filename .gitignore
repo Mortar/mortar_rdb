@@ -1,5 +1,6 @@
 /.installed.cfg
 /bin/
+/docs/_build
 /develop-eggs
 /*.egg-info/
 /parts/
