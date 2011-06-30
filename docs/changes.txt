@@ -3,6 +3,21 @@ Changes
 
 .. currentmodule:: mortar_rdb
 
+1.2.0 (30 Jun 2011)
+-------------------
+
+- Pass `None` as the default for `echo` rather than `False` on the
+  advice of Daniel Holth.
+
+- When using :func:`~mortar_rdb.registerSession`, allow exlicit
+  disabling of two-phase commit.
+
+- No longer log passwords during session registration.
+
+- Specify :mod:`sqlalchemy` 0.6 as a requirement, until
+  :mod:`zope.sqlalchemy` is ported, :mod:`mortar_rdb` shouldn't be
+  used with :mod:`sqlalchemy` 0.7.
+
 1.1.0 (27 Feb 2011)
 -------------------
 
