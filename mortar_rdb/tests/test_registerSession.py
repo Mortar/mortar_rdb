@@ -34,7 +34,7 @@ class TestUtility(TestCase):
         self.engine.dialect.name='mysql'
         registerSession(url='mysql://foo')
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -55,7 +55,7 @@ class TestUtility(TestCase):
         self.engine.dialect.name='postgresql'
         registerSession(url='postgres://foo')
         compare([
-                ('create_engine', ('postgres://foo',), {'echo':False}),
+                ('create_engine', ('postgres://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -76,7 +76,7 @@ class TestUtility(TestCase):
         self.engine.dialect.name='postgresql'
         registerSession(url='postgres://foo',twophase=False)
         compare([
-                ('create_engine', ('postgres://foo',), {'echo':False}),
+                ('create_engine', ('postgres://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -95,7 +95,7 @@ class TestUtility(TestCase):
     def test_sqlite(self):
         registerSession(url='sqlite://foo')
         compare([
-                ('create_engine', ('sqlite://foo',), {'echo':False}),
+                ('create_engine', ('sqlite://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -115,7 +115,7 @@ class TestUtility(TestCase):
         registerSession(url='mysql://foo',
                         scoped=False,transactional=False)
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -167,7 +167,7 @@ class TestUtility(TestCase):
     def test_url(self):
         registerSession('mysql://foo')
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -237,7 +237,7 @@ class TestUtility(TestCase):
         config = object()
         registerSession(url='sqlite://foo',config=config)
         compare([
-                ('create_engine', ('sqlite://foo',), {'echo':False}),
+                ('create_engine', ('sqlite://foo',), {'echo':None}),
                 ('validate',(self.engine,config),{}),
                 ('sessionmaker',
                  (),
@@ -263,7 +263,7 @@ class TestUtility(TestCase):
         with ShouldRaise():
             registerSession(url='sqlite://foo',config=config)
         compare([
-                ('create_engine', ('sqlite://foo',), {'echo':False}),
+                ('create_engine', ('sqlite://foo',), {'echo':None}),
                 ('validate',(self.engine,config),{}),
                 ],self.m.method_calls)
 
@@ -273,7 +273,7 @@ class TestUtility(TestCase):
         ext = TestExtension()
         registerSession('mysql://foo',extension=[ext],transactional=False)
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -297,7 +297,7 @@ class TestUtility(TestCase):
         ext2 = TestExtension2()
         registerSession('mysql://foo',extension=[ext1,ext2],transactional=False)
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -318,7 +318,7 @@ class TestUtility(TestCase):
         ext = TestExtension()
         registerSession('mysql://foo',extension=[ext])
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -342,7 +342,7 @@ class TestUtility(TestCase):
         ext2 = TestExtension2()
         registerSession('mysql://foo',extension=[ext1,ext2,])
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -366,7 +366,7 @@ class TestUtility(TestCase):
         ext2 = TestExtension2()
         registerSession('mysql://foo',extension=(ext1,ext2))
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
