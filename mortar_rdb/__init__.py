@@ -1,8 +1,8 @@
-# Copyright (c) 2011 Simplistix Ltd
+# Copyright (c) 2011-2012 Simplistix Ltd
 # See license.txt for license details.
 
 from logging import getLogger
-from sqlalchemy import create_engine as sa_create_engine
+from sqlalchemy import create_engine
 from sqlalchemy import MetaData, Table, exceptions
 from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.ext.declarative import declarative_base as sa_declarative_base
@@ -145,20 +145,6 @@ def registerSession(url=None,
         provided=ISession,
         name=name,
         ) 
-
-def create_engine(url,**params):
-    """
-    This returns an :class:`~sqlalchemy.engine.base.Engine`
-    for the supplied url and keyword parameters.
-
-    Default parameters for `encoding` and `pool_recycle` are added if
-    a MySQL url is supplied.
-    """
-    if 'mysql' in url:
-        # passed in should override
-        for name,value in (('encoding','utf-8'),('pool_recycle',3600)):
-            params[name]=params.get(name,value)
-    return sa_create_engine(url,**params)
 
 def drop_tables(engine):
     """
