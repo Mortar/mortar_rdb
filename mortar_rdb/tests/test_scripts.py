@@ -251,16 +251,6 @@ class TestCreate(ScriptsMixin,RepoTest):
                 version,
                 ControlledSchema(engine, path).version
                 )
-        
-    def test_create_engine_used(self):
-        with Replacer() as r:
-            mock = Mock()
-            r.replace('mortar_rdb.create_engine',mock)
-            self.config=None
-            self._callable()
-            mock.assert_called_with(self.db_url)
-        
-    
     def test_single_source(self):
         # setup
         metadata = MetaData()

@@ -68,8 +68,7 @@ from os import remove, listdir
 from os.path import join, isabs
 from pkg_resources import resource_filename
 from pkgutil import walk_packages
-from sqlalchemy import MetaData
-from sqlalchemy import Table
+from sqlalchemy import MetaData, Table, create_engine
 from sqlalchemy.engine.reflection import Inspector
 from types import ClassType
 from zope.dottedname.resolve import resolve
@@ -438,8 +437,6 @@ class Scripts:
 
     def __init__(self,url,config,failsafe):
         # avoid import loop
-        from . import create_engine
-        self.engine = create_engine(url)
         self.url = url
         self.config = config
         self.failsafe = failsafe
