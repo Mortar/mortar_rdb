@@ -14,7 +14,9 @@ from migrate.versioning.repository import Repository
 from migrate.versioning.schema import ControlledSchema
 from migrate.versioning.schemadiff import getDiffOfModelAgainstDatabase
 from mock import Mock
-from sqlalchemy import Table, Column, Integer, String, Text, MetaData
+from sqlalchemy import (
+    Table, Column, Integer, String, Text, MetaData, create_engine
+    )
 from sqlalchemy.engine.reflection import Inspector
 from testfixtures import (
     OutputCapture, Replacer, compare, ShouldRaise
@@ -251,6 +253,30 @@ class TestCreate(ScriptsMixin,RepoTest):
                 version,
                 ControlledSchema(engine, path).version
                 )
+            
+    def test_url_from_command_line(self):
+        # setup
+        metadata = MetaData()
+        mytable = Table('user', metadata,
+                        Column('id', Integer, primary_key=True),
+                        )
+        self.config = Config(Source(self.repo.path,mytable))
+
+        db_url = self.db_url
+        # make sure we're actually using the url from the command line:
+        self.db_url = 'junk'
+            
+        self._check('--url=%s create' % db_url, '''
+For database at %s:
+
+Repository at:
+%s
+Creating the following tables:
+user
+Setting database version to:
+0
+''' % (db_url, self.repo.path))
+            
     def test_single_source(self):
         # setup
         metadata = MetaData()
@@ -409,6 +435,7 @@ class TestValidate(ScriptsMixin,ControlledTest):
     def _check_validate(self,expected):
         with OutputCapture() as o:
             script = self._callable()
+            script.engine = create_engine(self.db_url)
             result = script._validate()
         o.compare(expected.lstrip())
         return result
