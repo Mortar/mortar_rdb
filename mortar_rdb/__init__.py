@@ -1,8 +1,8 @@
-# Copyright (c) 2011 Simplistix Ltd
+# Copyright (c) 2011-2012 Simplistix Ltd
 # See license.txt for license details.
 
 from logging import getLogger
-from sqlalchemy import create_engine as sa_create_engine
+from sqlalchemy import create_engine
 from sqlalchemy import MetaData, Table, exceptions
 from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.ext.declarative import declarative_base as sa_declarative_base
@@ -28,11 +28,12 @@ logger = getLogger('mortar_rdb')
 def registerSession(url=None,
                     name=u'',
                     engine=None,
-                    echo=False,
+                    echo=None,
                     transactional=True,
                     scoped=True,
                     config=None,
-                    extension=None):
+                    extension=None,
+                    twophase=True):
     """
     Create a :class:`~sqlalchemy.orm.session.Session` class and
     register it for later use.
@@ -75,6 +76,11 @@ def registerSession(url=None,
       or sequence of :class:`~sqlalchemy.orm.interfaces.SessionExtension`
       objects to be used with the session that is registered.
 
+    :param twophase: By default two-phase transactions are used where
+      supported by the underlying database. Where this causes problems,
+      single-phase transactions can be used for all engines by passing this
+      parameter as `False`.
+
     """
     if (engine and url) or not (engine or url):
         raise TypeError('Must specify engine or url, but not both')
@@ -93,9 +99,11 @@ def registerSession(url=None,
     if config is not None:
         validate(engine,config)
 
+    url = str(engine.url)
+    if engine.url.password is not None:
+        url = url.replace(engine.url.password,'<password>')
     logger.info('Registering session for %r with name %r',
-                str(engine.url),
-                name)
+                url,name)
 
     params = dict(
             bind = engine,
@@ -118,7 +126,7 @@ def registerSession(url=None,
             # whether or not we use the ORM.
             initial_state=STATUS_CHANGED,
             ))
-        if engine.dialect.name in ('postgresql', 'mysql'):
+        if twophase and engine.dialect.name in ('postgresql', 'mysql'):
             params['twophase']=True
 
     if extensions:
@@ -137,20 +145,6 @@ def registerSession(url=None,
         provided=ISession,
         name=name,
         ) 
-
-def create_engine(url,**params):
-    """
-    This returns an :class:`~sqlalchemy.engine.base.Engine`
-    for the supplied url and keyword parameters.
-
-    Default parameters for `encoding` and `pool_recycle` are added if
-    a MySQL url is supplied.
-    """
-    if 'mysql' in url:
-        # passed in should override
-        for name,value in (('encoding','utf-8'),('pool_recycle',3600)):
-            params[name]=params.get(name,value)
-    return sa_create_engine(url,**params)
 
 def drop_tables(engine):
     """

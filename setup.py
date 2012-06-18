@@ -1,15 +1,15 @@
-# Copyright (c) 2011 Simplistix Ltd
+# Copyright (c) 2012 Simplistix Ltd
 # See license.txt for license details.
 
 import os
-from setuptools import setup,find_packages
+from setuptools import setup, find_packages
 
 base_dir = os.path.dirname(__file__)
 
 setup(
     name='mortar_rdb',
     author='Chris Withers',
-    version='1.1.0',
+    version='1.2.1',
     author_email='chris@simplistix.co.uk',
     license='MIT',
     description="SQLAlchemy, sqlalchemy-migrate and the component architecture tied together for easy use in any framework",
@@ -24,7 +24,6 @@ setup(
     install_requires = (
         'argparse',
         'SQLAlchemy >= 0.7.0, < 0.8',
-        'sqlalchemy-migrate >= 0.7.1, < 0.8',
         'zope.component',
         'zope.dottedname',
         'zope.interface',

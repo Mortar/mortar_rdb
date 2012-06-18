@@ -240,8 +240,8 @@ class TestUtility(TestCase):
         s2 = getSession()
 
         self.assertNotEquals(id(s1),id(s2))
-
-    def test_logging_normal(self):
+        
+    def test_logging_functional(self):
         
         with LogCapture() as l:
             registerSession('sqlite://')
@@ -250,15 +250,4 @@ class TestUtility(TestCase):
                 'mortar_rdb',
                 'INFO',
                 "Registering session for 'sqlite://' with name u''"
-                ))
-
-    def test_logging_name(self):
-        
-        with LogCapture() as l:
-            registerSession('sqlite://','foo')
-            
-        l.check((
-                'mortar_rdb',
-                'INFO',
-                "Registering session for 'sqlite://' with name 'foo'"
                 ))

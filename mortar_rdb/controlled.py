@@ -68,8 +68,7 @@ from os import remove, listdir
 from os.path import join, isabs
 from pkg_resources import resource_filename
 from pkgutil import walk_packages
-from sqlalchemy import MetaData
-from sqlalchemy import Table
+from sqlalchemy import MetaData, Table, create_engine
 from sqlalchemy.engine.reflection import Inspector
 from types import ClassType
 from zope.dottedname.resolve import resolve
@@ -438,9 +437,7 @@ class Scripts:
 
     def __init__(self,url,config,failsafe):
         # avoid import loop
-        from . import create_engine
-        self.engine = create_engine(url)
-        self.url = url
+        self.default_url = url
         self.config = config
         self.failsafe = failsafe
 
@@ -570,12 +567,18 @@ The following repositories are in the configuration:
 Between them, they control the following tables:
 %s
 """ % (
-                self.url,
+                self.default_url,
                 '\n'.join(self.config.repos),
                 ', '.join(self.config.tables),
             )
             )
         
+        parser.add_argument(
+            '--url',
+            default = self.default_url,
+            help='Override the database url used.'
+            )
+
         commands = parser.add_subparsers()
 
         for name in dir(self.__class__):
@@ -589,7 +592,9 @@ Between them, they control the following tables:
             command.set_defaults(method=getattr(self,name))
 
         options = parser.parse_args()
-        print "For database at %s:" % self.url
+
+        self.engine = create_engine(options.url)
+        print "For database at %s:" % options.url
         options.method()
         
         

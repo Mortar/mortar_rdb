@@ -6,7 +6,7 @@ from mortar_rdb.interfaces import ISession
 from mock import Mock
 from sqlalchemy.orm.interfaces import SessionExtension
 from testfixtures import (
-    Replacer, Comparison as C, compare, ShouldRaise
+    Replacer, Comparison as C, compare, ShouldRaise, LogCapture
     )
 from unittest import TestCase
 from zope.sqlalchemy import ZopeTransactionExtension
@@ -18,6 +18,7 @@ class TestUtility(TestCase):
         self.m = Mock()
         self.r.replace('mortar_rdb.create_engine',self.m.create_engine)
         self.engine = self.m.create_engine.return_value
+        self.engine.url.password = None
         self.r.replace('mortar_rdb.validate',self.m.validate)
         self.r.replace('mortar_rdb.scoped_session',self.m.scoped_session)
         self.ScopedSession = self.m.scoped_session.return_value
@@ -33,7 +34,7 @@ class TestUtility(TestCase):
         self.engine.dialect.name='mysql'
         registerSession(url='mysql://foo')
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -54,7 +55,7 @@ class TestUtility(TestCase):
         self.engine.dialect.name='postgresql'
         registerSession(url='postgres://foo')
         compare([
-                ('create_engine', ('postgres://foo',), {'echo':False}),
+                ('create_engine', ('postgres://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -71,10 +72,30 @@ class TestUtility(TestCase):
                   'provided': ISession})
                 ],self.m.method_calls)
 
+    def test_no_twophase(self):
+        self.engine.dialect.name='postgresql'
+        registerSession(url='postgres://foo',twophase=False)
+        compare([
+                ('create_engine', ('postgres://foo',), {'echo':None}),
+                ('sessionmaker',
+                 (),
+                 {'autocommit': False,
+                  'autoflush': True,
+                  'bind': self.engine,
+                  'extension': C(ZopeTransactionExtension),
+                  },),
+                ('scoped_session', (self.Session,), {}),
+                ('getSiteManager', (), {}),
+                ('registry.registerUtility',
+                 (self.ScopedSession,),
+                 {'name': u'',
+                  'provided': ISession})
+                ],self.m.method_calls)
+
     def test_sqlite(self):
         registerSession(url='sqlite://foo')
         compare([
-                ('create_engine', ('sqlite://foo',), {'echo':False}),
+                ('create_engine', ('sqlite://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -94,7 +115,7 @@ class TestUtility(TestCase):
         registerSession(url='mysql://foo',
                         scoped=False,transactional=False)
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -108,6 +129,7 @@ class TestUtility(TestCase):
                 ],self.m.method_calls)
 
     def test_scoped_no_transactions(self):
+        self.m.engine2.url.password = 'pass'
         registerSession(engine=self.m.engine2,
                         scoped=True,transactional=False)
         compare([
@@ -125,6 +147,7 @@ class TestUtility(TestCase):
                 ],self.m.method_calls)
 
     def test_engine(self):
+        self.m.engine2.url.password = 'pass'
         registerSession(engine=self.m.engine2)
         compare([
                 ('sessionmaker',
@@ -144,7 +167,7 @@ class TestUtility(TestCase):
     def test_url(self):
         registerSession('mysql://foo')
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -214,7 +237,7 @@ class TestUtility(TestCase):
         config = object()
         registerSession(url='sqlite://foo',config=config)
         compare([
-                ('create_engine', ('sqlite://foo',), {'echo':False}),
+                ('create_engine', ('sqlite://foo',), {'echo':None}),
                 ('validate',(self.engine,config),{}),
                 ('sessionmaker',
                  (),
@@ -240,7 +263,7 @@ class TestUtility(TestCase):
         with ShouldRaise():
             registerSession(url='sqlite://foo',config=config)
         compare([
-                ('create_engine', ('sqlite://foo',), {'echo':False}),
+                ('create_engine', ('sqlite://foo',), {'echo':None}),
                 ('validate',(self.engine,config),{}),
                 ],self.m.method_calls)
 
@@ -250,7 +273,7 @@ class TestUtility(TestCase):
         ext = TestExtension()
         registerSession('mysql://foo',extension=[ext],transactional=False)
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -274,7 +297,7 @@ class TestUtility(TestCase):
         ext2 = TestExtension2()
         registerSession('mysql://foo',extension=[ext1,ext2],transactional=False)
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -295,7 +318,7 @@ class TestUtility(TestCase):
         ext = TestExtension()
         registerSession('mysql://foo',extension=[ext])
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -319,7 +342,7 @@ class TestUtility(TestCase):
         ext2 = TestExtension2()
         registerSession('mysql://foo',extension=[ext1,ext2,])
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -343,7 +366,7 @@ class TestUtility(TestCase):
         ext2 = TestExtension2()
         registerSession('mysql://foo',extension=(ext1,ext2))
         compare([
-                ('create_engine', ('mysql://foo',), {'echo':False}),
+                ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
                  (),
                  {'autocommit': False,
@@ -357,3 +380,49 @@ class TestUtility(TestCase):
                  {'name': u'',
                   'provided': ISession})
                 ],self.m.method_calls)
+
+    class MockUrl(Mock):
+        def __init__(self,url,password,parent):
+            Mock.__init__(self,parent=parent)
+            self._url = url
+            self.password = password
+        def __str__(self):
+            return self._url
+            
+    def test_logging_normal(self):
+        self.engine.url=self.MockUrl('sqlite://',None,self.engine)
+        
+        with LogCapture() as l:
+            registerSession('sqlite://')
+            
+        l.check((
+                'mortar_rdb',
+                'INFO',
+                "Registering session for 'sqlite://' with name u''"
+                ))
+
+    def test_logging_password(self):
+        self.engine.url=self.MockUrl('mysql://user:pass@localhost/db',
+                                     'pass',
+                                     self.engine)
+        
+        with LogCapture() as l:
+            registerSession('sqlite://')
+            
+        l.check((
+                'mortar_rdb',
+                'INFO',
+                "Registering session for 'mysql://user:<password>@localhost/db' with name u''"
+                ))
+
+    def test_logging_name(self):
+        self.engine.url=self.MockUrl('sqlite://',None,self.engine)
+        
+        with LogCapture() as l:
+            registerSession('sqlite://','foo')
+            
+        l.check((
+                'mortar_rdb',
+                'INFO',
+                "Registering session for 'sqlite://' with name 'foo'"
+                ))
