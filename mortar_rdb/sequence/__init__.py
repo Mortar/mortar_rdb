@@ -4,12 +4,12 @@
 Database independent provision of non-repeating, always-incrementing
 sequences of integers.
 """
-from mortar_rdb import getSession
+from mortar_rdb import get_session
 from mortar_rdb.interfaces import ISequence
 from zope.component import getSiteManager
 from .generic import SequenceImplementation
 
-def registerSequence(name,session,impl=SequenceImplementation):
+def register_sequence(name, session, impl=SequenceImplementation):
     """
     Register a sequence for later user.
 
@@ -36,7 +36,7 @@ def registerSequence(name,session,impl=SequenceImplementation):
         name=name,
         ) 
 
-def getSequence(name):
+def get_sequence(name):
     """
     Obtain a previously registered sequence.
     Once obtained, the :meth:`~mortar_rdb.interfaces.ISequence.next`

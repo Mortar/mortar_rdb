@@ -3,8 +3,8 @@
 
 import os
 
-from mortar_rdb.testing import registerSession, TestingBase
-from mortar_rdb import getSession, declarative_base
+from mortar_rdb.testing import register_session, TestingBase
+from mortar_rdb import get_session, declarative_base
 from mortar_rdb.controlled import Config, Source
 from testfixtures.components import TestComponents
 from mock import Mock
@@ -34,10 +34,10 @@ class TestRegisterSessionFunctional(TestCase):
             id = Column('id', Integer, primary_key=True)
             name = Column('name', String(50))
             
-        registerSession(
+        register_session(
             transactional=False,
             config=Config(Source(Model.__table__)))
-        session = getSession()
+        session = get_session()
         session.add(Model(name='foo'))
         session.commit()
 
@@ -48,11 +48,11 @@ class TestRegisterSessionFunctional(TestCase):
             id = Column('id', Integer, primary_key=True)
             name = Column('name', String(50))
             
-        registerSession(
+        register_session(
             transactional=False,
             metadata=Base.metadata
             )
-        session = getSession()
+        session = get_session()
         session.add(Model(name='foo'))
         session.commit()
 
@@ -62,7 +62,7 @@ class TestRegisterSessionFunctional(TestCase):
             r.replace('os.environ',dict())
             # hoover up the logging ;-)
             with OutputCapture():
-                registerSession(echo=True)
+                register_session(echo=True)
 
     def test_tricky_to_delete(self):
         # respect any DB_URL set here so that
@@ -91,13 +91,13 @@ class TestRegisterSessionFunctional(TestCase):
                 ))
         
         # create in one session
-        registerSession(db_path,name='create',
+        register_session(db_path,name='create',
                         transactional=False,
                         config=config)
         m1 = Model1()
         m2 = Model2()
         m1.model2 = m2
-        session = getSession('create')
+        session = get_session('create')
         session.add(m1)
         session.add(m2)
         session.commit()
@@ -106,10 +106,10 @@ class TestRegisterSessionFunctional(TestCase):
 
         # now register another session which should
         # blow the above away
-        registerSession(db_path,name='read',
+        register_session(db_path,name='read',
                         transactional=False,
                         config=config)
-        session = getSession('read')
+        session = get_session('read')
         compare(session.query(Model1).count(),0)
         compare(session.query(Model2).count(),0)
 
@@ -126,14 +126,14 @@ class TestRegisterSessionFunctional(TestCase):
             id = Column('id', Integer, primary_key=True)
             name = Column('name', String(50))
             
-        registerSession(
+        register_session(
             transactional=False,
             config=Config(Source(Model1.__table__)))
 
         # only table1 should have been created!
         compare(
             [u'model1'],
-            Inspector.from_engine(getSession().bind).get_table_names()
+            Inspector.from_engine(get_session().bind).get_table_names()
             )
             
 class TestRegisterSessionCalls(TestCase):
@@ -142,18 +142,18 @@ class TestRegisterSessionCalls(TestCase):
         self.components = TestComponents()
         self.r = Replacer()
         self.m = Mock()
-        self.r.replace('mortar_rdb.testing.realRegisterSession',
+        self.r.replace('mortar_rdb.testing.real_register_session',
                        self.m.realRegisterSession)
         self.r.replace('mortar_rdb.testing.create_engine',
                        self.m.create_engine)
         # mock out for certainty
         # self.r.replace('mortar_rdb.testing.???',Mock())
         # mock out for table destruction
-        getSession = Mock()
-        bind = getSession.return_value.bind
+        get_session = Mock()
+        bind = get_session.return_value.bind
         bind.dialect.inspector.return_value = inspector = Mock()
         inspector.get_table_names.return_value = ()
-        self.r.replace('mortar_rdb.testing.getSession',getSession)
+        self.r.replace('mortar_rdb.testing.get_session', get_session)
 
     def tearDown(self):
         self.r.restore()
@@ -162,7 +162,7 @@ class TestRegisterSessionCalls(TestCase):
     def test_default_params(self):
         # ie: no DB_URL!
         self.r.replace('os.environ',dict())
-        registerSession()
+        register_session()
         compare([
             ('create_engine',
              ('sqlite://',),
@@ -173,7 +173,7 @@ class TestRegisterSessionCalls(TestCase):
             ],self.m.method_calls)
 
     def test_specified_params(self):
-        registerSession(
+        register_session(
             url='x://',
             name='foo',
             echo=True,
@@ -188,7 +188,7 @@ class TestRegisterSessionCalls(TestCase):
     def test_echo_but_no_url(self):
         # make sure there's no DBURL
         self.r.replace('os.environ',dict())
-        registerSession(echo=True)
+        register_session(echo=True)
         compare([
             ('create_engine',
              ('sqlite://',),
@@ -201,7 +201,7 @@ class TestRegisterSessionCalls(TestCase):
 
     def test_engine_passed(self):
         engine = object()
-        registerSession(
+        register_session(
             engine=engine,
             )
         compare([
@@ -213,7 +213,7 @@ class TestRegisterSessionCalls(TestCase):
         self.r.replace('os.environ',dict(
                 DB_URL = 'x://'
                 ))
-        registerSession()
+        register_session()
         compare([
                 ('realRegisterSession',
                  ('x://', u'', None, False, True, True, None, None), {}),
@@ -224,7 +224,7 @@ class TestRegisterSessionCalls(TestCase):
                 DB_URL = 'x://'
                 ))
         engine = object()
-        registerSession(engine=engine)
+        register_session(engine=engine)
         compare([
                 ('realRegisterSession',
                  (None, u'', engine, False, True, True, None, None), {}),
@@ -233,7 +233,7 @@ class TestRegisterSessionCalls(TestCase):
     def test_extension(self):
         engine = object()
         extension = object()
-        registerSession(engine=engine,extension=extension)
+        register_session(engine=engine,extension=extension)
         compare([
                 ('realRegisterSession',
                  (None, u'', engine, False, True, True, None, extension), {}),

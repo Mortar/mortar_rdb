@@ -23,7 +23,7 @@ from .interfaces import ISession
 
 logger = getLogger('mortar_rdb')
 
-def registerSession(url=None,
+def register_session(url=None,
                     name=u'',
                     engine=None,
                     echo=None,
@@ -46,10 +46,10 @@ def registerSession(url=None,
       logging framework. This option cannot be specified if you pass in
       an engine.
 
-    :param scoped: If `True`, then :func:`getSession` will return a distinct
+    :param scoped: If `True`, then :func:`get_session` will return a distinct
       session for each thread that it is called from but, within that thread,
       it will always return the same session. If it is `False`, every call
-      to :func:`getSession` will return a new session.
+      to :func:`get_session` will return a new session.
     
     :param transactional:
 
@@ -166,7 +166,7 @@ def drop_tables(engine):
     for table in tbs:
         conn.execute(DropTable(table))
 
-def getSession(name=u''):
+def get_session(name=u''):
     """
     Return a :class:`~sqlalchemy.orm.session.Session` instance from
     the current registry as registered with the supplied `name`.

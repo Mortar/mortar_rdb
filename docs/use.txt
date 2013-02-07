@@ -62,20 +62,20 @@ To use the above model, we have the following view code:
 
  ::
 
-   from mortar_rdb import getSession
+   from mortar_rdb import get_session
    from sample.model import User
    
    def add_user(name):
-       session = getSession()
+       session = get_session()
        session.add(User(name=name))
 
    def edit_user(id,name):
-       session = getSession()
+       session = get_session()
        user = session.query(User).filter(User.id == id).one()
        user.name = name
 
 When using :mod:`mortar_rdb`, the session is obtained by calling
-:func:`mortar_rdb.getSession`. This allows the provision of the session to
+:func:`mortar_rdb.get_session`. This allows the provision of the session to
 be independent of its use, which makes testing and deploying to
 different environments easier.
 
@@ -92,7 +92,7 @@ framework:
 
  ::
 
-   from mortar_rdb import registerSession
+   from mortar_rdb import register_session
    from sample import views
    from sample.config import db_url
    from sample.model import config
@@ -101,7 +101,7 @@ framework:
    import transaction
 
    def main():
-       registerSession(db_url)
+       register_session(db_url)
        name = sys.argv[1]
        args = sys.argv[2:]
        with transaction.manager:
@@ -115,14 +115,14 @@ Although there's not much to it, the above framework shows the
 elements you will need to plug in to whatever framework you choose to
 use.
 
-The main one of these is the call to :func:`~mortar_rdb.registerSession`
-which sets up the components necessary for :func:`~mortar_rdb.getSession` to
+The main one of these is the call to :func:`~mortar_rdb.register_session`
+which sets up the components necessary for :func:`~mortar_rdb.get_session` to
 return a :class:`~sqlalchemy.orm.session.Session` object.
 
 The example framework is also shown to manage these sessions using the
 :mod:`transaction` package. Should your framework not use this
 package, you are strongly suggested to read the documentation for
-:func:`~mortar_rdb.registerSession` in detail to make sure you pass the
+:func:`~mortar_rdb.register_session` in detail to make sure you pass the
 correct parameters to get the behaviour required by your framework.
 
 Testing
@@ -133,7 +133,7 @@ writing the code under test. :mod:`mortar_rdb` aids this by providing the
 :mod:`mortar_rdb.testing` module.
 
 The following example shows how to provides minimal coverage using
-:func:`mortar_rdb.testing.registerSession` and illustrates how the
+:func:`mortar_rdb.testing.register_session` and illustrates how the
 abstraction of configuring a session from obtaining a session in
 :mod:`mortar_rdb` makes testing easier:
 
@@ -142,8 +142,8 @@ abstraction of configuring a session from obtaining a session in
 
  ::
 
-  from mortar_rdb import getSession
-  from mortar_rdb.testing import registerSession
+  from mortar_rdb import get_session
+  from mortar_rdb.testing import register_session
   from sample.model import User, config
   from sample.views import add_user, edit_user
   from unittest import TestCase
@@ -151,19 +151,19 @@ abstraction of configuring a session from obtaining a session in
   class Tests(TestCase):
 
        def setUp(self):
-           registerSession(config=config)
+           register_session(config=config)
 
        def test_add_user(self):
            # code under test
            add_user('Mr Test')
            # checks
-           session = getSession()
+           session = get_session()
            user = session.query(User).one()
            self.assertEqual('Mr Test',user.name)
 
        def test_edit_user(self):
            # setup
-           session = getSession()
+           session = get_session()
            session.add(User(id=1,name='Mr Chips'))
            # code under test
            edit_user('1','Mr Fish')

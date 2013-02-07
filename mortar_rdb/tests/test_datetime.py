@@ -2,8 +2,8 @@
 # See license.txt for license details.
 
 from datetime import datetime
-from mortar_rdb import getSession
-from mortar_rdb.testing import registerSession
+from mortar_rdb import get_session
+from mortar_rdb.testing import register_session
 from testfixtures.components import TestComponents
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.schema import Column
@@ -30,13 +30,13 @@ class TestDateTime(TestCase):
             id = Column(Integer, primary_key=True)
             value = Column(DateTime)
             
-        registerSession(metadata=Base.metadata)
+        register_session(metadata=Base.metadata)
 
         with transaction.manager:
-            session = getSession()
+            session = get_session()
             session.add(Sucktastic(value=datetime(2001,1,1,10,1,2,3)))
 
-        session = getSession()
+        session = get_session()
         
         suck = session.query(Sucktastic).one()
 

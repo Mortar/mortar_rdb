@@ -30,7 +30,7 @@ class ISequence(Interface):
         name.
 
         It will be called by (ie: the class will be instantiated by)
-        :func:`~mortar_rdb.sequence.registerSequence` and passed the name
+        :func:`~mortar_rdb.sequence.register_sequence` and passed the name
         of the sequence and a :class:`~sqlalchemy.orm.session.Session`
         ready to use to check or create any data structures
         necessary.

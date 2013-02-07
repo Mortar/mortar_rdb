@@ -2,7 +2,7 @@
 # See license.txt for license details.
 
 from contextlib import nested
-from mortar_rdb import registerSession, declarative_base, drop_tables
+from mortar_rdb import register_session, declarative_base, drop_tables
 from mortar_rdb.controlled import Source, scan, Config
 from mortar_rdb.testing import TestingBase
 from testfixtures.components import TestComponents

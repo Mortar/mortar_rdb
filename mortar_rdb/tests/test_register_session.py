@@ -1,7 +1,7 @@
 # Copyright (c) 2011-2013 Simplistix Ltd
 # See license.txt for license details.
 
-from mortar_rdb import registerSession
+from mortar_rdb import register_session
 from mortar_rdb.interfaces import ISession
 from mock import Mock
 from sqlalchemy.orm.interfaces import SessionExtension
@@ -31,7 +31,7 @@ class TestUtility(TestCase):
         
     def test_mysql(self):
         self.engine.dialect.name='mysql'
-        registerSession(url='mysql://foo')
+        register_session(url='mysql://foo')
         compare([
                 ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
@@ -52,7 +52,7 @@ class TestUtility(TestCase):
 
     def test_postgres(self):
         self.engine.dialect.name='postgresql'
-        registerSession(url='postgres://foo')
+        register_session(url='postgres://foo')
         compare([
                 ('create_engine', ('postgres://foo',), {'echo':None}),
                 ('sessionmaker',
@@ -73,7 +73,7 @@ class TestUtility(TestCase):
 
     def test_no_twophase(self):
         self.engine.dialect.name='postgresql'
-        registerSession(url='postgres://foo',twophase=False)
+        register_session(url='postgres://foo',twophase=False)
         compare([
                 ('create_engine', ('postgres://foo',), {'echo':None}),
                 ('sessionmaker',
@@ -92,7 +92,7 @@ class TestUtility(TestCase):
                 ],self.m.method_calls)
 
     def test_sqlite(self):
-        registerSession(url='sqlite://foo')
+        register_session(url='sqlite://foo')
         compare([
                 ('create_engine', ('sqlite://foo',), {'echo':None}),
                 ('sessionmaker',
@@ -111,7 +111,7 @@ class TestUtility(TestCase):
                 ],self.m.method_calls)
 
     def test_not_scoped(self):
-        registerSession(url='mysql://foo',
+        register_session(url='mysql://foo',
                         scoped=False,transactional=False)
         compare([
                 ('create_engine', ('mysql://foo',), {'echo':None}),
@@ -129,7 +129,7 @@ class TestUtility(TestCase):
 
     def test_scoped_no_transactions(self):
         self.m.engine2.url.password = 'pass'
-        registerSession(engine=self.m.engine2,
+        register_session(engine=self.m.engine2,
                         scoped=True,transactional=False)
         compare([
                 ('sessionmaker',
@@ -147,7 +147,7 @@ class TestUtility(TestCase):
 
     def test_engine(self):
         self.m.engine2.url.password = 'pass'
-        registerSession(engine=self.m.engine2)
+        register_session(engine=self.m.engine2)
         compare([
                 ('sessionmaker',
                  (),
@@ -164,7 +164,7 @@ class TestUtility(TestCase):
                 ],self.m.method_calls)
 
     def test_url(self):
-        registerSession('mysql://foo')
+        register_session('mysql://foo')
         compare([
                 ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
@@ -182,7 +182,7 @@ class TestUtility(TestCase):
                 ],self.m.method_calls)
 
     def test_echo(self):
-        registerSession(url='mysql://foo',echo=True)
+        register_session(url='mysql://foo',echo=True)
         compare([
                 ('create_engine', ('mysql://foo',), {'echo':True}),
                 ('sessionmaker',
@@ -203,7 +203,7 @@ class TestUtility(TestCase):
         with ShouldRaise(
             TypeError('Cannot specify echo if an engine is passed')
             ):
-            registerSession(engine=self.m.engine2,echo=True)
+            register_session(engine=self.m.engine2,echo=True)
         
         compare([],self.m.method_calls)
 
@@ -211,7 +211,7 @@ class TestUtility(TestCase):
         with ShouldRaise(
             TypeError('Must specify engine or url, but not both')
             ):
-            registerSession(url='mysql://',engine=self.m.engine2)
+            register_session(url='mysql://',engine=self.m.engine2)
         
         compare([],self.m.method_calls)
 
@@ -219,7 +219,7 @@ class TestUtility(TestCase):
         with ShouldRaise(
             TypeError('Must specify engine or url, but not both')
             ):
-            registerSession()
+            register_session()
         
         compare([],self.m.method_calls)
 
@@ -227,7 +227,7 @@ class TestUtility(TestCase):
         with ShouldRaise(
             TypeError('Transactions can only be managed when using scoped sessions')
             ):
-            registerSession(url='mysql://',
+            register_session(url='mysql://',
                             transactional=True,scoped=False)
         
         compare([],self.m.method_calls)
@@ -236,7 +236,7 @@ class TestUtility(TestCase):
         class TestExtension(SessionExtension):
             pass
         ext = TestExtension()
-        registerSession('mysql://foo',extension=[ext],transactional=False)
+        register_session('mysql://foo',extension=[ext],transactional=False)
         compare([
                 ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
@@ -260,7 +260,7 @@ class TestUtility(TestCase):
             pass
         ext1 = TestExtension1()
         ext2 = TestExtension2()
-        registerSession('mysql://foo',extension=[ext1,ext2],transactional=False)
+        register_session('mysql://foo',extension=[ext1,ext2],transactional=False)
         compare([
                 ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
@@ -281,7 +281,7 @@ class TestUtility(TestCase):
         class TestExtension(SessionExtension):
             pass
         ext = TestExtension()
-        registerSession('mysql://foo',extension=[ext])
+        register_session('mysql://foo',extension=[ext])
         compare([
                 ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
@@ -305,7 +305,7 @@ class TestUtility(TestCase):
             pass
         ext1 = TestExtension1()
         ext2 = TestExtension2()
-        registerSession('mysql://foo',extension=[ext1,ext2,])
+        register_session('mysql://foo',extension=[ext1,ext2,])
         compare([
                 ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
@@ -329,7 +329,7 @@ class TestUtility(TestCase):
             pass
         ext1 = TestExtension1()
         ext2 = TestExtension2()
-        registerSession('mysql://foo',extension=(ext1,ext2))
+        register_session('mysql://foo',extension=(ext1,ext2))
         compare([
                 ('create_engine', ('mysql://foo',), {'echo':None}),
                 ('sessionmaker',
@@ -358,7 +358,7 @@ class TestUtility(TestCase):
         self.engine.url=self.MockUrl('sqlite://',None,self.engine)
         
         with LogCapture() as l:
-            registerSession('sqlite://')
+            register_session('sqlite://')
             
         l.check((
                 'mortar_rdb',
@@ -372,7 +372,7 @@ class TestUtility(TestCase):
                                      self.engine)
         
         with LogCapture() as l:
-            registerSession('sqlite://')
+            register_session('sqlite://')
             
         l.check((
                 'mortar_rdb',
@@ -384,7 +384,7 @@ class TestUtility(TestCase):
         self.engine.url=self.MockUrl('sqlite://',None,self.engine)
         
         with LogCapture() as l:
-            registerSession('sqlite://','foo')
+            register_session('sqlite://','foo')
             
         l.check((
                 'mortar_rdb',

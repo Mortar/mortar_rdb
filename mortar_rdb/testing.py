@@ -7,15 +7,15 @@ Helpers for unit testing when using :mod:`mortar_rdb`
 import os
 
 from . import (
-    getSession, declarative_base, drop_tables,
-    registerSession as realRegisterSession
+    get_session, declarative_base, drop_tables,
+    register_session as real_register_session
     )
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 
 import mortar_rdb
 
-def registerSession(url=None,
+def register_session(url=None,
                     name=u'',
                     engine=None,
                     echo=False,
@@ -27,7 +27,7 @@ def registerSession(url=None,
     """
     This will register a session for testing purposes.
     
-    The calling parameters mirror those of :func:`mortar_rdb.registerSession`
+    The calling parameters mirror those of :func:`mortar_rdb.register_session`
     but if neither `url` nor `engine` is specified then:
 
     - The environment will be consulted for a variable called ``DB_URL``.
@@ -58,10 +58,10 @@ def registerSession(url=None,
             engine = create_engine('sqlite://',
                                    poolclass=StaticPool,
                                    echo=echo)
-            # don't confuse the real registerSession
+            # don't confuse the real register_session
             echo = False
         
-    realRegisterSession(
+    real_register_session(
         url,
         name,
         engine,
@@ -71,7 +71,7 @@ def registerSession(url=None,
         None,
         extension
         )
-    engine = getSession(name).bind
+    engine = get_session(name).bind
     
     drop_tables(engine)
     

@@ -1,7 +1,7 @@
 # Copyright (c) 2011 Simplistix Ltd
 # See license.txt for license details.
 
-from mortar_rdb import registerSession, getSession
+from mortar_rdb import register_session, get_session
 from mortar_rdb.interfaces import ISession
 from testfixtures.components import TestComponents
 from sqlalchemy.exc import OperationalError
@@ -34,9 +34,9 @@ class TestUtility(TestCase):
         self.components.uninstall()
 
     def test_how_to_create(self):
-        registerSession('sqlite://', transactional=False)
+        register_session('sqlite://', transactional=False)
         # at this stage we have no tables
-        session = getSession()
+        session = get_session()
         session.add(self.Model(name='foo'))
         # so we get an error
         with ShouldRaise(OperationalError):
@@ -52,25 +52,25 @@ class TestUtility(TestCase):
         self.assertEqual(1,session.query(self.Model).count())
         
     def test_get_in_view(self):
-        registerSession('sqlite://')
-        registerSession('sqlite://','foo')
+        register_session('sqlite://')
+        register_session('sqlite://','foo')
 
         # create the tables
-        session1 = getSession()
-        session2 = getSession('foo')
+        session1 = get_session()
+        session2 = get_session('foo')
         with transaction.manager:
             self.Base.metadata.create_all(session1.bind)
             self.Base.metadata.create_all(session2.bind)
         
         # this is what you'd do in views:
-        session = getSession()
+        session = get_session()
         session.add(self.Model(id=1,name='foo'))
         model1 = session.query(self.Model).one()
         self.assertEqual(model1.id,1)
         self.assertEqual(model1.name,'foo')
 
         # or with a name...
-        session = getSession('foo')
+        session = get_session('foo')
         session.add(self.Model(id=1,name='foo'))
         model2 = session.query(self.Model).one()
         self.assertEqual(model2.id,1)
@@ -80,10 +80,10 @@ class TestUtility(TestCase):
         self.failIf(model1 is model2)
         
     def test_register(self):
-        registerSession('sqlite://')
+        register_session('sqlite://')
 
         # create the tables
-        session = getSession()
+        session = get_session()
         self.Base.metadata.create_all(session.bind)
         
         # check registrations
@@ -97,7 +97,7 @@ class TestUtility(TestCase):
                   registry=self.components.registry
                   )),self.components.registry.registeredUtilities())
         
-        # this is what getSession goes:
+        # this is what get_session goes:
         session = getSiteManager().getUtility(ISession)
         
         session.add(self.Model(id=1,name='foo'))
@@ -106,7 +106,7 @@ class TestUtility(TestCase):
         self.assertEqual(model.name,'foo')
 
     def test_register_with_name(self):
-        registerSession('sqlite://','foo')
+        register_session('sqlite://','foo')
 
         # check registrations
         compare(generator(
@@ -133,11 +133,11 @@ class TestUtility(TestCase):
 
 
     def test_transaction(self):
-        registerSession('sqlite://')
+        register_session('sqlite://')
         
         # functional
         with transaction.manager:
-            session = getSession()
+            session = get_session()
             self.Base.metadata.create_all(session.bind)
             session.add(self.Model(id=1,name='foo'))
         
@@ -145,11 +145,11 @@ class TestUtility(TestCase):
                 session.scalar(self.Model.__table__.select().count()))
         
     def test_transaction_no_session_usage(self):
-        registerSession('sqlite://')
+        register_session('sqlite://')
 
         # functional
         with transaction.manager:
-            session = getSession()
+            session = get_session()
             self.Base.metadata.create_all(session.bind)
             session.execute(
                 self.Model.__table__.insert().values(name='test')
@@ -160,10 +160,10 @@ class TestUtility(TestCase):
             
         
     def test_no_transaction(self):
-        registerSession('sqlite://',transactional=False)
+        register_session('sqlite://',transactional=False)
         
         # functional
-        session = getSession()
+        session = get_session()
         self.Base.metadata.create_all(session.bind)
         session.add(self.Model(id=1,name='foo'))
         session.commit()
@@ -173,11 +173,11 @@ class TestUtility(TestCase):
 
     def test_different_sessions_per_thread(self):
         
-        registerSession('sqlite://')
+        register_session('sqlite://')
 
         class TestThread(Thread):
             def run(self):
-                self.resulting_session = getSession()
+                self.resulting_session = get_session()
 
         t1 = TestThread()
         t1.start()
@@ -193,18 +193,18 @@ class TestUtility(TestCase):
 
     def test_different_sessions_when_async(self):
         
-        registerSession('sqlite://',
+        register_session('sqlite://',
                         scoped=False, transactional=False)
 
-        s1 = getSession()
-        s2 = getSession()
+        s1 = get_session()
+        s2 = get_session()
 
         self.assertNotEquals(id(s1),id(s2))
         
     def test_logging_functional(self):
         
         with LogCapture() as l:
-            registerSession('sqlite://')
+            register_session('sqlite://')
             
         l.check((
                 'mortar_rdb',

@@ -17,29 +17,29 @@ database:
 
 .. invisible-code-block: python
 
-  from mortar_rdb import registerSession, getSession
+  from mortar_rdb import register_session, get_session
   from mortar_rdb.sequence.generic import sequences
   import transaction
-  registerSession(db_url,'setup')
+  register_session(db_url,'setup')
   with transaction.manager:
-    session = getSession('setup')
+    session = get_session('setup')
     sequences.create(session.bind)
 
 .. code-block:: python
 
-  from mortar_rdb import registerSession, getSession
-  from mortar_rdb.sequence import registerSequence
+  from mortar_rdb import register_session, get_session
+  from mortar_rdb.sequence import register_sequence
 
   import transaction
 
-  registerSession(db_url)
+  register_session(db_url)
   with transaction.manager:
-      session = getSession()
-      registerSequence('seq1',session)
-      registerSequence('seq2',session)
+      session = get_session()
+      register_sequence('seq1',session)
+      register_sequence('seq2',session)
 
 You'll notice that you need to manage a database transaction when you
-call :func:`~mortar_rdb.sequence.registerSequence`, either using the
+call :func:`~mortar_rdb.sequence.register_sequence`, either using the
 :mod:`transaction` package or by manually calling
 :meth:`~sqlalchemy.orm.session.Session.commit` after the call. This is
 because registering a sequence, certainly in the default
@@ -50,11 +50,11 @@ Once registered, whenever you need some unique integers in application
 code, get hold of the sequence and call its
 :meth:`~mortar_rdb.interfaces.ISequence.next` method::
 
-  >>> from mortar_rdb import getSession
-  >>> from mortar_rdb.sequence import getSequence
-  >>> seq1 = getSequence('seq1')
-  >>> seq2 = getSequence('seq2')
-  >>> session = getSession()
+  >>> from mortar_rdb import get_session
+  >>> from mortar_rdb.sequence import get_sequence
+  >>> seq1 = get_sequence('seq1')
+  >>> seq2 = get_sequence('seq2')
+  >>> session = get_session()
   >>> seq1.next(session)
   1
   >>> seq1.next(session)
@@ -65,12 +65,12 @@ code, get hold of the sequence and call its
   1
 
 .. note:: The default implementation used by
-  :func:`~mortar_rdb.sequence.registerSequence` is 
+  :func:`~mortar_rdb.sequence.register_sequence` is 
   :class:`mortar_rdb.sequence.generic.SequenceImplementation`.
 
   This uses a table called ``sequences`` in the database which needs
   to be created before 
-  you first call :func:`~mortar_rdb.sequence.registerSequence`. If you
+  you first call :func:`~mortar_rdb.sequence.register_sequence`. If you
   are using :mod:`mortar_rdb.controlled` then you can use the source from
   ``mortar_rdb.sequence.generic.source`` as part of your
   :class:`~mortar_rdb.controlled.Config` to take care of table creation.
