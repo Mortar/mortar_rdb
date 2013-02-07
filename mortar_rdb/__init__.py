@@ -102,10 +102,7 @@ def registerSession(url=None,
     if extension is None:
         extensions = []
     else:
-        if isinstance(extension, SessionExtension):
-            extensions = [extension]
-        else:
-            extensions = list(extension)
+        extensions = list(extension)
 
     if transactional:
         extensions.append(
@@ -122,7 +119,7 @@ def registerSession(url=None,
             params['extension']=extensions[0]
         else:
             params['extension']=extensions
-        
+
     Session = sessionmaker(**params)
     
     if scoped:
