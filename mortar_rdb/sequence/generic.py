@@ -1,4 +1,4 @@
-# Copyright (c) 2011 Simplistix Ltd
+# Copyright (c) 2011-2013 Simplistix Ltd
 # See license.txt for license details.
 from mortar_rdb.controlled import Source
 from pkg_resources import resource_filename
@@ -8,9 +8,9 @@ from sqlalchemy.sql.expression import select
 metadata = MetaData()
 
 sequences = Table(
-    'sequences',metadata,
-    Column('name',String(20),primary_key=True),
-    Column('current',Integer(),default=0),
+    'sequences', metadata,
+    Column('name', String(20), primary_key=True),
+    Column('current', Integer(), default=0),
     mysql_engine='InnoDB',
     )
 
@@ -56,8 +56,4 @@ class SequenceImplementation:
             raise ValueError('No result returned for sequence %r'%self.name)
         return r
 
-# using scan here results in import loops :-(
-source = Source(
-    resource_filename('mortar_rdb.sequence','db_versioning'),
-    sequences
-    )
+source = Source(sequences)

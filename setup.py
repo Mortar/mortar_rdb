@@ -9,10 +9,13 @@ base_dir = os.path.dirname(__file__)
 setup(
     name='mortar_rdb',
     author='Chris Withers',
-    version='1.2.1',
+    version='2.0a',
     author_email='chris@simplistix.co.uk',
     license='MIT',
-    description="SQLAlchemy, sqlalchemy-migrate and the component architecture tied together for easy use in any framework",
+    description=(
+        "SQLAlchemy and the component architecture tied together "
+        "for easy use in multi-package projects for any framework"
+        ),
     long_description=open(os.path.join(base_dir,'docs','description.txt')).read(),
     url='http://www.simplistix.co.uk/software/python/mortar_rdb',
     classifiers=[
@@ -23,7 +26,7 @@ setup(
     zip_safe=False,
     install_requires = (
         'argparse',
-        'SQLAlchemy >= 0.7.0, < 0.8',
+        'SQLAlchemy',
         'zope.component',
         'zope.dottedname',
         'zope.interface',

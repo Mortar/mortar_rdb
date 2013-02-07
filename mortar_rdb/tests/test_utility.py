@@ -135,35 +135,14 @@ class TestUtility(TestCase):
     def test_transaction(self):
         registerSession('sqlite://')
         
-        # check the ZCA stuff
-        utility = getSiteManager().getUtility(ISession)
-        
-        compare(
-            C('sqlalchemy.orm.scoping.ScopedSession'),
-            utility
-            )
-        
-        compare(
-            C(utility.session_factory,
-              autocommit=False,
-              autoflush=True,
-              expire_on_commit=True,
-              bind=C('sqlalchemy.engine.base.Engine'),
-              # twophase=True, :'(
-              extensions=[
-                    C('zope.sqlalchemy.datamanager.ZopeTransactionExtension')
-                    ],
-              strict=False),
-            utility()
-            )
-
-        compare('sqlite://',str(utility().bind.url))
-
         # functional
         with transaction:
             session = getSession()
             self.Base.metadata.create_all(session.bind)
             session.add(self.Model(id=1,name='foo'))
+        
+        compare(1,
+                session.scalar(self.Model.__table__.select().count()))
         
     def test_transaction_no_session_usage(self):
         registerSession('sqlite://')
@@ -183,34 +162,15 @@ class TestUtility(TestCase):
     def test_no_transaction(self):
         registerSession('sqlite://',transactional=False)
         
-        # check the ZCA stuff
-        utility = getSiteManager().getUtility(ISession)
-        
-        compare(
-            C('sqlalchemy.orm.scoping.ScopedSession'),
-            utility
-            )
-        
-        compare(
-            C(utility.session_factory,
-              autocommit=False,
-              autoflush=True,
-              expire_on_commit=True,
-              bind=C('sqlalchemy.engine.base.Engine'),
-              twophase=False,
-              extensions=[],
-              strict=False),
-            utility()
-            )
-
-        compare('sqlite://',str(utility().bind.url))
-        
         # functional
         session = getSession()
         self.Base.metadata.create_all(session.bind)
         session.add(self.Model(id=1,name='foo'))
         session.commit()
     
+        compare(1,
+                session.scalar(self.Model.__table__.select().count()))
+
     def test_different_sessions_per_thread(self):
         
         registerSession('sqlite://')
@@ -234,7 +194,7 @@ class TestUtility(TestCase):
     def test_different_sessions_when_async(self):
         
         registerSession('sqlite://',
-                        scoped=False,transactional=False)
+                        scoped=False, transactional=False)
 
         s1 = getSession()
         s2 = getSession()

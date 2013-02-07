@@ -3,6 +3,12 @@ Changes
 
 .. currentmodule:: mortar_rdb
 
+2.0.0 (XX YYY 201Z)
+-------------------
+
+- Remove use of :mod:`sqlalchemy-migrate`, :mod:`alembic` is a better
+  bet but not yet introduced.
+
 1.2.1 (30 Jun 2011)
 -------------------
 

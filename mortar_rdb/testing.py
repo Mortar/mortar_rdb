@@ -1,4 +1,4 @@
-# Copyright (c) 2011 Simplistix Ltd
+# Copyright (c) 2011-2013 Simplistix Ltd
 # See license.txt for license details.
 """
 Helpers for unit testing when using :mod:`mortar_rdb`
@@ -10,8 +10,6 @@ from . import (
     getSession, declarative_base, drop_tables,
     registerSession as realRegisterSession
     )
-from migrate.exceptions import DatabaseAlreadyControlledError
-from migrate.versioning.schema import ControlledSchema
 from sqlalchemy import create_engine
 from sqlalchemy.pool import StaticPool
 
@@ -80,11 +78,6 @@ def registerSession(url=None,
     if config is not None:
         for source in config.sources:
             source.metadata.create_all(engine)
-            ControlledSchema.create(
-                engine,
-                source.repository,
-                source.repository.latest
-                )
 
     if metadata is not None:
         metadata.create_all(engine)
@@ -132,24 +125,3 @@ class TestingBase(object):
     
     def __exit__(self,*args):
         self.restore()
-
-def run_migrations(engine,repository,from_,to_):
-    """
-    This test helper is here to help testing migration scripts.
-
-    It will set the version for the supplied repository to the version
-    specified in ``from_`` and then run any migration scripts
-    available to take the version to that specified in ``to_``.
-    """
-    try:
-        ControlledSchema.create(engine,repository,from_)
-    except DatabaseAlreadyControlledError:
-        schema = ControlledSchema(engine,repository)
-        schema.update_repository_table(schema.version,from_)
-
-    schema = ControlledSchema(engine,repository)
-    changeset = schema.changeset(to_)
-    if len(changeset):
-        for ver, change in changeset:
-            nextver = ver + changeset.step
-            schema.runchange(ver, change, changeset.step)

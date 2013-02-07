@@ -1,6 +1,16 @@
 Documentation
 =============
 
+This package ties together `SQLAlchemy`__ and
+the `component architecture`__ to make it easy to develop projects
+using SQLAlchemy through their complete lifecycle.
+
+__ http://www.sqlalchemy.org/
+__ http://pypi.python.org/pypi/zope.component#zope-component-architecture
+
+It also includes some common models and mixins that are useful
+in a variety of projects.
+
 .. toctree::
    :maxdepth: 2
 

@@ -23,7 +23,7 @@ class ISequence(Interface):
     once and then have their :meth:`next` method called often.
     """
 
-    def __init__(name,session):
+    def __init__(name, session):
         """
         This function should do whatever needs to be done
         to make the sequence ready to use with the supplied

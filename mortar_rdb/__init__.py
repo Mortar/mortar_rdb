@@ -1,9 +1,8 @@
-# Copyright (c) 2011-2012 Simplistix Ltd
+# Copyright (c) 2011-2013 Simplistix Ltd
 # See license.txt for license details.
 
 from logging import getLogger
 from sqlalchemy import create_engine
-from sqlalchemy import MetaData, Table, exceptions
 from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.ext.declarative import declarative_base as sa_declarative_base
 from sqlalchemy.orm import scoped_session
@@ -20,7 +19,6 @@ from zope.component import getSiteManager
 from zope.sqlalchemy import ZopeTransactionExtension
 from zope.sqlalchemy.datamanager import STATUS_CHANGED
 
-from .controlled import validate
 from .interfaces import ISession
 
 logger = getLogger('mortar_rdb')
@@ -31,7 +29,6 @@ def registerSession(url=None,
                     echo=None,
                     transactional=True,
                     scoped=True,
-                    config=None,
                     extension=None,
                     twophase=True):
     """
@@ -66,12 +63,6 @@ def registerSession(url=None,
       :meth:`~sqlalchemy.orm.session.Session.begin`/:meth:`~sqlalchemy.orm.session.Session.commit`/:meth:`~sqlalchemy.orm.session.Session.rollback`,
       as appropriate, yourself. 
 
-    :param config: This is an optional parameter that should be a
-      :class:`~mortar_rdb.controlled.Config` instance. Any config passed
-      will be used to verify that the schema expected by the software
-      matches that in the database. If it does not, an exception will be
-      raised.
-
     :param extension: An optional :class:`~sqlalchemy.orm.interfaces.SessionExtension`
       or sequence of :class:`~sqlalchemy.orm.interfaces.SessionExtension`
       objects to be used with the session that is registered.
@@ -94,16 +85,13 @@ def registerSession(url=None,
         if echo:
             raise TypeError('Cannot specify echo if an engine is passed')
     else:
-        engine = create_engine(url,echo=echo)
-
-    if config is not None:
-        validate(engine,config)
+        engine = create_engine(url, echo=echo)
 
     url = str(engine.url)
     if engine.url.password is not None:
-        url = url.replace(engine.url.password,'<password>')
+        url = url.replace(engine.url.password, '<password>')
     logger.info('Registering session for %r with name %r',
-                url,name)
+                url, name)
 
     params = dict(
             bind = engine,
@@ -114,7 +102,7 @@ def registerSession(url=None,
     if extension is None:
         extensions = []
     else:
-        if isinstance(extension,SessionExtension):
+        if isinstance(extension, SessionExtension):
             extensions = [extension]
         else:
             extensions = list(extension)
@@ -173,10 +161,10 @@ def drop_tables(engine):
             fks.append(
                 ForeignKeyConstraint((),(),name=fk['name'])
                 )
-        t = Table(table_name,metadata,*fks)
+        t = Table(table_name, metadata,*fks)
         tbs.append(t)
         for fkc in fks:
-            conn.execute(DropConstraint(fkc,cascade=True))
+            conn.execute(DropConstraint(fkc, cascade=True))
 
     for table in tbs:
         conn.execute(DropTable(table))
@@ -209,5 +197,5 @@ def declarative_base(**kw):
     if key in _bases:
         return _bases[key]
     base = sa_declarative_base(**kw)
-    _bases[key]=base
+    _bases[key] = base
     return base

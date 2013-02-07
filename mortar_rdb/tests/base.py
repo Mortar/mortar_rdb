@@ -1,13 +1,10 @@
-# Copyright (c) 2011 Simplistix Ltd
+# Copyright (c) 2011-2013 Simplistix Ltd
 # See license.txt for license details.
 
-from mortar_rdb.controlled import create_repository
-from mortar_rdb import create_engine
-from mortar_rdb.controlled import (
-    create_main, Scripts, Config, Source
+from mortar_rdb.controlled import Scripts, Config, Source
+from sqlalchemy import (
+    Table, Column, Integer, String, Text, MetaData, create_engine
     )
-from migrate.versioning.schema import ControlledSchema
-from sqlalchemy import Table, Column, Integer, String, Text, MetaData
 from testfixtures import TempDirectory, Replacer, compare
 from unittest import TestCase
 
@@ -36,20 +33,10 @@ class PackageTest(TestCase):
             del sys.modules[name]
         self.dir.cleanup()
         
-class RepoTest(PackageTest):
-
-    def _make_repo(self,*location):
-        location = location or ('x','y','z','repo')
-        path = os.path.join(self.dir.path,*location)
-        self.repo = create_repository(path,location[-1])
-        compare(0,self.repo.latest)
-        return self.repo
-        
-class ControlledTest(RepoTest):   
+class ControlledTest(PackageTest):   
 
     def setUp(self):
-        RepoTest.setUp(self)
-        self._make_repo()
+        super(ControlledTest, self).setUp()
         self.metadata = MetaData()
         self.table = Table('user', self.metadata,
                         Column('id', Integer, primary_key=True),
@@ -57,14 +44,4 @@ class ControlledTest(RepoTest):
         self.db_url = 'sqlite:///'+self.dir.getpath('sqlite.db')
         self.engine = create_engine(self.db_url)
         self.metadata.create_all(self.engine)
-        self.config = Config(Source(self.repo.path,self.table))
-
-    def _check_db(self,expected):
-        self.assertEqual(
-            expected,
-            ControlledSchema(
-                create_engine(self.db_url),
-                self.repo.path
-                ).version
-            )
-        
+        self.config = Config(Source(self.table))

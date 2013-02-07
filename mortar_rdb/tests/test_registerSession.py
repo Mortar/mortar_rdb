@@ -1,4 +1,4 @@
-# Copyright (c) 2011 Simplistix Ltd
+# Copyright (c) 2011-2013 Simplistix Ltd
 # See license.txt for license details.
 
 from mortar_rdb import registerSession
@@ -19,7 +19,6 @@ class TestUtility(TestCase):
         self.r.replace('mortar_rdb.create_engine',self.m.create_engine)
         self.engine = self.m.create_engine.return_value
         self.engine.url.password = None
-        self.r.replace('mortar_rdb.validate',self.m.validate)
         self.r.replace('mortar_rdb.scoped_session',self.m.scoped_session)
         self.ScopedSession = self.m.scoped_session.return_value
         self.r.replace('mortar_rdb.sessionmaker',self.m.sessionmaker)
@@ -232,40 +231,6 @@ class TestUtility(TestCase):
                             transactional=True,scoped=False)
         
         compare([],self.m.method_calls)
-
-    def test_controlled(self):
-        config = object()
-        registerSession(url='sqlite://foo',config=config)
-        compare([
-                ('create_engine', ('sqlite://foo',), {'echo':None}),
-                ('validate',(self.engine,config),{}),
-                ('sessionmaker',
-                 (),
-                 {'autocommit': False,
-                  'autoflush': True,
-                  'bind': self.engine,
-                  'extension': C(ZopeTransactionExtension),
-                  },),
-                ('scoped_session', (self.Session,), {}),
-                ('getSiteManager', (), {}),
-                ('registry.registerUtility',
-                 (self.ScopedSession,),
-                 {'name': u'',
-                  'provided': ISession})
-                ],self.m.method_calls)
-
-    def test_controlled_raises(self):
-        def raiser(*args):
-            # likely to be ValidationException or a migrate complaint
-            raise Exception()
-        self.m.validate.side_effect = raiser
-        config = object()
-        with ShouldRaise():
-            registerSession(url='sqlite://foo',config=config)
-        compare([
-                ('create_engine', ('sqlite://foo',), {'echo':None}),
-                ('validate',(self.engine,config),{}),
-                ],self.m.method_calls)
 
     def test_one_extension(self):
         class TestExtension(SessionExtension):

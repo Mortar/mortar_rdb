@@ -1,15 +1,14 @@
-# Copyright (c) 2011 Simplistix Ltd
+# Copyright (c) 2011-2013 Simplistix Ltd
 # See license.txt for license details.
 
 from cStringIO import StringIO
 from doctest import REPORT_NDIFF,ELLIPSIS
 from functools import partial
 from glob import glob
-from mortar_rdb.controlled import create_main
 from mortar_rdb.testing import TestingBase
-from manuel import doctest,capture,codeblock
+from manuel import doctest, capture, codeblock
 from manuel.testing import TestSuite
-from os.path import dirname,join,pardir,splitext
+from os.path import dirname, join, pardir, splitext
 from shutil import copytree
 from testfixtures import TempDirectory, Replacer, OutputCapture, compare
 from testfixtures.manuel import Files
@@ -46,10 +45,8 @@ class Execute(Manuel):
             return
         block = region.parsed
         
-        def sample_script(dotted,func):
-            sample = __import__('sample%i.%s'%(
-                    globs['ver'],dotted
-                    ))
+        def sample_script(dotted, func):
+            sample = __import__('sample.' + dotted)
             obj = sample
             for name in dotted.split('.'):
                 obj = getattr(obj,name)
@@ -59,19 +56,18 @@ class Execute(Manuel):
             pass
     
         commands = {
-            'bin/mortar_rdb_create':(create_main,False),
-            'bin/db':(partial(sample_script,'db','scripts'),True),
-            'bin/run':(partial(sample_script,'run','main'),True),
-            'DB_URL=mysql://scott:tiger@localhost/test':(do_nothing,False),
+            'bin/db':(partial(sample_script, 'db', 'scripts'), False),
+            'bin/run':(partial(sample_script, 'run', 'main'), False),
+            'DB_URL=mysql://scott:tiger@localhost/test':(do_nothing, False),
             }
 
-        command,args = block.command.split(None,1)
-        func,needs_ver = commands[command]
+        command, args = block.command.split(None, 1)
+        func, needs_ver = commands[command]
         if func is None:
             return
         if needs_ver:
             ver = 'sample'+str(globs['ver'])
-            args = args.replace('sample',ver)
+            args = args.replace('sample', ver)
 
         with Replacer() as r:
             r.replace('sys.argv',[command]+args.split())
@@ -90,15 +86,15 @@ class Execute(Manuel):
         actual = actual.replace(globs['dir'].path,'')
         if needs_ver:
             actual = actual.replace(ver,'sample')
-        compare(expected,actual.strip())
+        compare(expected, actual.strip())
 
-def run_tests(case,run):
+def run_tests(case, run):
     output = StringIO()
     runner = TextTestRunner(output)
     result = runner.run(makeSuite(case))
     if result.errors or result.failures:
         raise AssertionError('\n'+output.getvalue())
-    compare(run,result.testsRun)
+    compare(run, result.testsRun)
 
 def create_version(globs,ver):
     # a lot of work, but we need to do it

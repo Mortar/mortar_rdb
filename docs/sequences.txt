@@ -17,8 +17,6 @@ database:
 
 .. invisible-code-block: python
 
-  # so we get the tables created without needing
-  # a migrate repository.
   from mortar_rdb import registerSession, getSession
   from mortar_rdb.sequence.generic import sequences
   import transaction
@@ -75,8 +73,7 @@ code, get hold of the sequence and call its
   you first call :func:`~mortar_rdb.sequence.registerSequence`. If you
   are using :mod:`mortar_rdb.controlled` then you can use the source from
   ``mortar_rdb.sequence.generic.source`` as part of your
-  :class:`~mortar_rdb.controlled.Config` to take care of table creation
-  and schema migration.
+  :class:`~mortar_rdb.controlled.Config` to take care of table creation.
 
   Also, please note that this implementation may cause contention on
   the table in question. If your database engine provides native
