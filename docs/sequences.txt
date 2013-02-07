@@ -21,7 +21,7 @@ database:
   from mortar_rdb.sequence.generic import sequences
   import transaction
   registerSession(db_url,'setup')
-  with transaction:
+  with transaction.manager:
     session = getSession('setup')
     sequences.create(session.bind)
 
@@ -33,7 +33,7 @@ database:
   import transaction
 
   registerSession(db_url)
-  with transaction:
+  with transaction.manager:
       session = getSession()
       registerSequence('seq1',session)
       registerSequence('seq2',session)

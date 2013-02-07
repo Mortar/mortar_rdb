@@ -58,7 +58,7 @@ class TestUtility(TestCase):
         # create the tables
         session1 = getSession()
         session2 = getSession('foo')
-        with transaction:
+        with transaction.manager:
             self.Base.metadata.create_all(session1.bind)
             self.Base.metadata.create_all(session2.bind)
         
@@ -136,7 +136,7 @@ class TestUtility(TestCase):
         registerSession('sqlite://')
         
         # functional
-        with transaction:
+        with transaction.manager:
             session = getSession()
             self.Base.metadata.create_all(session.bind)
             session.add(self.Model(id=1,name='foo'))
@@ -148,7 +148,7 @@ class TestUtility(TestCase):
         registerSession('sqlite://')
 
         # functional
-        with transaction:
+        with transaction.manager:
             session = getSession()
             self.Base.metadata.create_all(session.bind)
             session.execute(

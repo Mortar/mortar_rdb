@@ -32,7 +32,7 @@ class TestDateTime(TestCase):
             
         registerSession(metadata=Base.metadata)
 
-        with transaction:
+        with transaction.manager:
             session = getSession()
             session.add(Sucktastic(value=datetime(2001,1,1,10,1,2,3)))
 
