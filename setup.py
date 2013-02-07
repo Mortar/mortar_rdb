@@ -9,7 +9,7 @@ base_dir = os.path.dirname(__file__)
 setup(
     name='mortar_rdb',
     author='Chris Withers',
-    version='2.0a',
+    version='2.0dev',
     author_email='chris@simplistix.co.uk',
     license='MIT',
     description=(
