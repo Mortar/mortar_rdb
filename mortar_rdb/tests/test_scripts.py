@@ -21,12 +21,13 @@ class ScriptsMixin:
     
     failsafe = True
     
-    def _check(self,s,expected):
-        self.r.replace('sys.argv',['X']+s.split())
+    def _check(self, s, expected, kw=None):
+        kw = kw or {}
+        self.r.replace('sys.argv', ['X']+s.split())
         ex = None
         try:
             with OutputCapture() as output:
-               self._callable()()
+               self._callable()(**kw)
         except SystemExit,ex:
             # Catch this as the output will
             # likely tell us what the problem was
@@ -74,6 +75,20 @@ For database at %s:
 Creating the following tables:
 user
 ''' % (db_url, ))
+            
+    def test_pass_in_argv(self):
+        self._setup_config()
+        # check we can pass in argv if we're being called as a sub-script
+        self._check('not for us', '''
+For database at %s:
+
+Creating the following tables:
+user
+''' % (self.db_url, ),
+                    kw=dict(argv=['create']))
+        expected_metadata = MetaData()
+        self.mytable.tometadata(expected_metadata)
+        self._check_db(expected_metadata)
             
     def test_single_source(self):
         self._setup_config()

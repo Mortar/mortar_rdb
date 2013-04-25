@@ -233,7 +233,7 @@ class Scripts:
         else:
             print "Refusing to drop all tables due to failsafe."
 
-    def __call__(self):
+    def __call__(self, argv=None):
         parser = ArgumentParser(
             formatter_class=RawDescriptionHelpFormatter,
             description="""
@@ -263,7 +263,7 @@ They following tables are in the current configuration:
                 )
             command.set_defaults(method=getattr(self,name))
 
-        options = parser.parse_args()
+        options = parser.parse_args(argv)
 
         self.engine = create_engine(options.url)
         print "For database at %s:" % options.url
