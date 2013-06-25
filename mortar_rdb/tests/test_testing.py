@@ -103,6 +103,7 @@ class TestRegisterSessionFunctional(TestCase):
         session.commit()
         compare(session.query(Model1).count(),1)
         compare(session.query(Model2).count(),1)
+        session.rollback()
 
         # now register another session which should
         # blow the above away
@@ -112,6 +113,7 @@ class TestRegisterSessionFunctional(TestCase):
         session = get_session('read')
         compare(session.query(Model1).count(),0)
         compare(session.query(Model2).count(),0)
+        session.rollback()
 
     def test_only_some_packages(self):
         Base = sa_declarative_base()

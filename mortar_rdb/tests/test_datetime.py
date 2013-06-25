@@ -45,3 +45,5 @@ class TestDateTime(TestCase):
             self.assertEqual(suck.value,datetime(2001,1,1,10,1,2))
         else:
             self.assertEqual(suck.value,datetime(2001,1,1,10,1,2,3))
+
+        session.rollback()

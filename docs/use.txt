@@ -153,6 +153,9 @@ abstraction of configuring a session from obtaining a session in
        def setUp(self):
            self.session = register_session(config=config)
 
+       def tearDown(self):
+           self.session.rollback()
+
        def test_add_user(self):
            # code under test
            add_user('Mr Test')
