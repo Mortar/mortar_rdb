@@ -219,6 +219,20 @@ class TestRegisterSessionCalls(TestCase):
                  ('x://', u'', None, False, True, True, None, None), {}),
                 ],self.m.method_calls)
 
+    def test_empty_environment_url(self):
+        self.r.replace('os.environ',dict(
+                DB_URL = ''
+                ))
+        register_session()
+        compare([
+            ('create_engine',
+             ('sqlite://',),
+             {'poolclass': StaticPool,
+              'echo': False}),
+            ('realRegisterSession',
+             ('', u'', self.m.create_engine.return_value, False, True, True, None, None), {}),
+            ],self.m.method_calls)
+
     def test_engine_overrides_environment(self):
         self.r.replace('os.environ',dict(
                 DB_URL = 'x://'

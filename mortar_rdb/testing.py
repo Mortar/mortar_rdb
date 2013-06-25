@@ -52,7 +52,7 @@ def register_session(url=None,
 
     if not (url or engine):
         url = os.environ.get('DB_URL')
-        if url is None:
+        if not url:
             # we use a StaticPool so that the in memory databases
             # don't leak between individual tests
             engine = create_engine('sqlite://',
