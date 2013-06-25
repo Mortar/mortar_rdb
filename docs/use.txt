@@ -151,25 +151,23 @@ abstraction of configuring a session from obtaining a session in
   class Tests(TestCase):
 
        def setUp(self):
-           register_session(config=config)
+           self.session = register_session(config=config)
 
        def test_add_user(self):
            # code under test
            add_user('Mr Test')
            # checks
-           session = get_session()
-           user = session.query(User).one()
-           self.assertEqual('Mr Test',user.name)
+           user = self.session.query(User).one()
+           self.assertEqual('Mr Test', user.name)
 
        def test_edit_user(self):
            # setup
-           session = get_session()
-           session.add(User(id=1,name='Mr Chips'))
+           self.session.add(User(id=1, name='Mr Chips'))
            # code under test
-           edit_user('1','Mr Fish')
+           edit_user('1', 'Mr Fish')
            # checks
-           user = session.query(User).one()
-           self.assertEqual('Mr Fish',user.name)
+           user = self.session.query(User).one()
+           self.assertEqual('Mr Fish', user.name)
 
 If you wish to run these tests against a particular database, rather
 than using the default in-memory SQLite database, then set the

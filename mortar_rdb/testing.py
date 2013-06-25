@@ -25,7 +25,8 @@ def register_session(url=None,
                     metadata=None,
                     extension=None):
     """
-    This will register a session for testing purposes.
+    This will create a :class:`~sqlalchemy.orm.session.Session` class for
+    testing purposes and register it for later use.
     
     The calling parameters mirror those of :func:`mortar_rdb.register_session`
     but if neither `url` nor `engine` is specified then:
@@ -42,6 +43,9 @@ def register_session(url=None,
 
     If a :class:`~sqlalchemy.schema.MetaData` instance is passed in,
     then all tables within it will be created.
+
+    Unlike the non-testing :class:`~mortar_rdb.register_session`, this will
+    also return an instance of the registered session.
     
     .. warning::
 
@@ -71,7 +75,8 @@ def register_session(url=None,
         None,
         extension
         )
-    engine = get_session(name).bind
+    session = get_session(name)
+    engine = session.bind
     
     drop_tables(engine)
     
@@ -81,6 +86,8 @@ def register_session(url=None,
 
     if metadata is not None:
         metadata.create_all(engine)
+
+    return session
 
 class TestingBase(object):
     """
