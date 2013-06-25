@@ -86,7 +86,7 @@ class User(declarative_base()):
         
     def test_package(self):
         # create package
-        package_dir = self.dir.makedir('somepackage',path=True)
+        package_dir = self.dir.makedir('somepackage')
         self.dir.write('somepackage/__init__.py',
                        """
 from mortar_rdb import declarative_base
@@ -111,7 +111,7 @@ class Table2(declarative_base()):
         
     def test_package_import_loop(self):
         # this type of import loop occurs often
-        package_dir = self.dir.makedir('demo',path=True)
+        package_dir = self.dir.makedir('demo')
         self.dir.write('demo/__init__.py','')
         self.dir.write('demo/model/__init__.py',
                        """
