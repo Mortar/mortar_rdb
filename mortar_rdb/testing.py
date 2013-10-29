@@ -7,7 +7,7 @@ Helpers for unit testing when using :mod:`mortar_rdb`
 import os
 
 from . import (
-    get_session, declarative_base, drop_tables,
+    get_session, drop_tables,
     register_session as real_register_session
     )
 from sqlalchemy import create_engine
@@ -16,14 +16,14 @@ from sqlalchemy.pool import StaticPool
 import mortar_rdb
 
 def register_session(url=None,
-                    name=u'',
-                    engine=None,
-                    echo=False,
-                    transactional=True,
-                    scoped=True,
-                    config=None,
-                    metadata=None,
-                    extension=None):
+                     name=u'',
+                     engine=None,
+                     echo=False,
+                     transactional=True,
+                     scoped=True,
+                     config=None,
+                     metadata=None,
+                     extension=None):
     """
     This will create a :class:`~sqlalchemy.orm.session.Session` class for
     testing purposes and register it for later use.
