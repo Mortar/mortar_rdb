@@ -1,4 +1,4 @@
-# Copyright (c) 2012 Simplistix Ltd
+# Copyright (c) 2012-2013 Simplistix Ltd
 # See license.txt for license details.
 
 import os
@@ -9,7 +9,7 @@ base_dir = os.path.dirname(__file__)
 setup(
     name='mortar_rdb',
     author='Chris Withers',
-    version='2.0dev',
+    version='2.0',
     author_email='chris@simplistix.co.uk',
     license='MIT',
     description=(
