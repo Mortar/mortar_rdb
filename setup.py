@@ -25,7 +25,6 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires = (
-        'argparse',
         'SQLAlchemy',
         'zope.component',
         'zope.dottedname',
