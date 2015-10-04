@@ -6,15 +6,13 @@ from doctest import REPORT_NDIFF,ELLIPSIS
 from functools import partial
 from glob import glob
 from mortar_rdb.testing import TestingBase
-from manuel import doctest, capture, codeblock
+from manuel import Manuel, doctest, capture, codeblock
 from manuel.testing import TestSuite
 from os.path import dirname, join, pardir, splitext
 from shutil import copytree
 from testfixtures import TempDirectory, Replacer, OutputCapture, compare
 from testfixtures.manuel import Files
 from unittest import makeSuite, TextTestRunner
-
-from manuel import Manuel
 
 import re,sys
 import textwrap
