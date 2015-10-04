@@ -34,10 +34,20 @@ setup(
         ),
     extras_require=dict(
         test=[
+            'nose',
+            'nose-cov',
+            'nose-fixes',
             'mock',
             'manuel',
-            'testfixtures >= 1.9.0',
+            'testfixtures',
             ],
+        build=[
+            'sphinx',
+            'pkginfo',
+            'setuptools-git',
+            'twine',
+            'wheel',
+        ]
         ),
     entry_points = {
         'console_scripts': [

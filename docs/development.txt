@@ -6,20 +6,22 @@ Development
 Once you've obtained a source checkout, you can follow these
 instructions to perform various development tasks:
 
-Setting up the buildout
+Setting up a virtualenv
 -----------------------
 
-All development requires that you run the buildout::
+The recommended way to set up a development environment is to turn
+your checkout into a virtualenv and then install the package in
+editable form as follows::
 
-  $ python bootstrap.py
-  $ bin/buildout
+  $ virtualenv .
+  $ bin/pip install -U -e .[test,build]
 
 Running the tests
 -----------------
 
-Once you have a buildout, the tests can be run as follows::
+Once you've set up a virtualenv, the tests can be run as follows::
 
-  $ bin/test
+  $ bin/nosetests
 
 Some of the tests can be run against a specific database to check
 compatibility with specific database back ends. To do this, set the 

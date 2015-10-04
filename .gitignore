@@ -1,8 +1,5 @@
 *.pyc
 /*.egg-info/
-/.installed.cfg
-/bin/
 /dist
 /develop-eggs
 /docs/_build
-/parts/
