@@ -106,7 +106,7 @@ framework:
        args = sys.argv[2:]
        with transaction.manager:
            getattr(views, name)(*args)
-       print "Ran %r with %r" % (name, args)
+       print("Ran %r with %r" % (name, args))
 
    if __name__=='__main__':
        main()  

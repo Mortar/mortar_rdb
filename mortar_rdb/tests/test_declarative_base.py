@@ -6,6 +6,8 @@ from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import DeclarativeMeta
 from testfixtures import Replacer, ShouldRaise
 from unittest import TestCase
+from mortar_rdb.compat import PY2
+
 
 class TestGetBase(TestCase):
 
@@ -30,9 +32,12 @@ class TestGetBase(TestCase):
     def test_arguments(self):
         # the first parameter to declarative_base :-)
         engine = object()
-        with ShouldRaise(TypeError(
-                'declarative_base() takes exactly 0 arguments (1 given)'
-                )):
+        if PY2:
+            text = 'declarative_base() takes exactly 0 arguments (1 given)'
+        else:
+            text = 'declarative_base() takes 0 positional arguments but 1 was given'
+
+        with ShouldRaise(TypeError(text)):
             declarative_base(engine)
 
     def test_parameters_engine(self):

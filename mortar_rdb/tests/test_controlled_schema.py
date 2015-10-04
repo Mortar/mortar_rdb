@@ -1,21 +1,19 @@
 # Copyright (c) 2011-2013 Simplistix Ltd
 # See license.txt for license details.
 
-from contextlib import nested
-from mortar_rdb import register_session, declarative_base, drop_tables
-from mortar_rdb.controlled import Source, scan, Config
-from mortar_rdb.testing import TestingBase
-from testfixtures.components import TestComponents
+from unittest import TestCase
+
 from sqlalchemy import Table, Column, Integer, String, MetaData
 from testfixtures import (
     compare, TempDirectory, ShouldRaise,
     StringComparison as S
     )
-from unittest import TestCase
+from mortar_rdb.compat import PY2
 
-from .base import PackageTest, ControlledTest
+from mortar_rdb.controlled import Source, scan, Config
+from mortar_rdb.testing import TestingBase
+from .base import PackageTest
 
-import os
 
 class TestSource(TestCase):
 
@@ -47,9 +45,19 @@ class TestSource(TestCase):
         class SomethingElse:
             pass
 
+        if PY2:
+            text = (
+                "<class mortar_rdb.tests.test_controlled_schema."
+                "SomethingElse at [0-9a-zA-Z]+>"
+            )
+        else:
+            text = (
+                "<class 'mortar_rdb.tests.test_controlled_schema."
+                "TestSource.test_class.<locals>.SomethingElse'>"
+            )
+
         with ShouldRaise(TypeError(S(
-                    "<class mortar_rdb.tests.test_controlled_schema."
-                    "SomethingElse at [0-9a-zA-Z]+> must be a "
+                    text+" must be a "
                     "Table object or a declaratively mapped model class."
                     ))):
             s = Source(SomethingElse)
@@ -65,13 +73,17 @@ class TestScan(PackageTest):
         PackageTest.tearDown(self)
         
     def test_doesnt_exist(self):
-        with ShouldRaise(ImportError('No module named package')):
+        if PY2:
+            text = 'No module named package'
+        else:
+            text = "No module named 'test.package'"
+        with ShouldRaise(ImportError(text)):
             scan('test.package.nothere')
 
     def test_module(self):
         # create module
         self.dir.write('somemodule.py',
-                       """
+                       b"""
 from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 class User(declarative_base()):
@@ -88,7 +100,7 @@ class User(declarative_base()):
         # create package
         package_dir = self.dir.makedir('somepackage')
         self.dir.write('somepackage/__init__.py',
-                       """
+                       b"""
 from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 class Table1(declarative_base()):
@@ -96,7 +108,7 @@ class Table1(declarative_base()):
   id = Column('id', Integer, primary_key=True)
 """)
         self.dir.write('somepackage/table2.py',
-                       """
+                       b"""
 from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 class Table2(declarative_base()):
@@ -112,14 +124,14 @@ class Table2(declarative_base()):
     def test_package_import_loop(self):
         # this type of import loop occurs often
         package_dir = self.dir.makedir('demo')
-        self.dir.write('demo/__init__.py','')
+        self.dir.write('demo/__init__.py', b'')
         self.dir.write('demo/model/__init__.py',
-                       """
+                       b"""
 from mortar_rdb.controlled import Config,scan
 config = Config(scan('demo'))
 """)
         self.dir.write('demo/model/table.py',
-                       """
+                       b"""
 from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 
@@ -127,7 +139,7 @@ class Table(declarative_base()):
   __tablename__ = 'table'
   id = Column('id', Integer, primary_key=True)
 """)
-        self.dir.write('demo/db.py',"""
+        self.dir.write('demo/db.py', b"""
 from demo.model import config
 from mortar_rdb.controlled import Scripts
 
@@ -140,10 +152,9 @@ scripts = Scripts(
 if __name__=='__main__':
     scripts()
 """)
-        self.dir.write('demo/run.py',"from demo.model import config")
+        self.dir.write('demo/run.py', b"from demo.model import config")
         
         # problem used to occur here
-        import demo.db
 
         from demo.model import config
         
@@ -154,7 +165,7 @@ if __name__=='__main__':
     def test_type_of_things_to_scan_for(self):
         # create module
         self.dir.write('somemodule.py',
-                       """
+                       b"""
 from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer, String, MetaData
 
@@ -192,7 +203,7 @@ class Model3(declarative_base()):
     def test_single_table_inheritance(self):
         # create module
         self.dir.write('somemodule.py',
-                       """
+                       b"""
 from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer, String, MetaData
 
@@ -218,14 +229,14 @@ class Type2Thing(BaseThing):
         compare(['id', 'foo', 'bar'], s.metadata.tables['table'].c.keys())
 
     def test_ignore_imports_from_other_modules(self):
-        self.dir.write('package0/__init__.py',"""
+        self.dir.write('package0/__init__.py', b"""
 from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 class Model1(declarative_base()):
   __tablename__ = 'table1'
   id = Column('id', Integer, primary_key=True)
 """)
-        self.dir.write('package1/__init__.py',"""
+        self.dir.write('package1/__init__.py', b"""
 from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 class Model2(declarative_base()):
@@ -233,7 +244,7 @@ class Model2(declarative_base()):
   id = Column('id', Integer, primary_key=True)
 from package0 import Model1
 """)
-        self.dir.write('package1/subpack/__init__.py',"""
+        self.dir.write('package1/subpack/__init__.py', b"""
 from mortar_rdb import declarative_base
 from sqlalchemy import Table, Column, Integer
 class Model3(declarative_base()):
@@ -279,5 +290,5 @@ class TestConfig(TestCase):
         
         c = Config(s1, s2)
 
-        compare(set(['t2']), c.excludes[s1])
-        compare(set(['t1']), c.excludes[s2])
+        compare({'t2'}, c.excludes[s1])
+        compare({'t1'}, c.excludes[s2])

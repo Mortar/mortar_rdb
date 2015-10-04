@@ -1,4 +1,4 @@
-# Copyright (c) 2011-2013 Simplistix Ltd
+# Copyright (c) 2011-2013 Simplistix Ltd, 2015 Chris Withers
 # See license.txt for license details.
 
 from mortar_rdb import drop_tables
@@ -28,7 +28,7 @@ class ScriptsMixin:
         try:
             with OutputCapture() as output:
                self._callable()(**kw)
-        except SystemExit,ex:
+        except SystemExit as ex:
             # Catch this as the output will
             # likely tell us what the problem was
             pass

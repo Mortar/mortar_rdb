@@ -1,10 +1,10 @@
-# Copyright (c) 2011-2013 Simplistix Ltd
+# Copyright (c) 2011-2013 Simplistix Ltd, 2015 Chris Withers
 # See license.txt for license details.
+from __future__ import print_function
 
-from cStringIO import StringIO
+from ..compat import StringIO
 from doctest import REPORT_NDIFF,ELLIPSIS
 from functools import partial
-from glob import glob
 from mortar_rdb.testing import TestingBase
 from manuel import Manuel, doctest, capture, codeblock
 from manuel.testing import TestSuite
@@ -72,11 +72,11 @@ class Execute(Manuel):
             try:
                 with OutputCapture() as o:
                     func()
-            except SystemExit,e:
-                print "Output:"
-                print o.output.getvalue()
+            except SystemExit as e:
+                print("Output:")
+                print(o.output.getvalue())
                 raise
-            except Exception,e:
+            except Exception as e:
                 actual = '...traceback...\n'+repr(e)
             else:
                 actual = o.output.getvalue()
@@ -118,11 +118,11 @@ def setUp(test):
     sys.path.append(dir.path)
     test.globs['db_url']=db_url='sqlite:///'+join(dir.path,'test.db')
     # make sample package
-    dir.write('sample/__init__.py','')
-    dir.write('sample/config.py',"""
+    dir.write('sample/__init__.py', b'')
+    dir.write('sample/config.py', ("""
 db_url = %r
 is_production = False
-""" % db_url)
+""" % db_url).encode('ascii'))
     
 def tearDown(test):
     dir = test.globs['dir']

@@ -22,9 +22,9 @@ class PackageTest(TestCase):
         # create a handy Replacer
         self.r = Replacer()
         # make a package
-        self.dir.write('x/__init__.py','')
-        self.dir.write('x/y/__init__.py','')
-        self.dir.write('x/y/z/__init__.py','')
+        self.dir.write('x/__init__.py', b'')
+        self.dir.write('x/y/__init__.py', b'')
+        self.dir.write('x/y/z/__init__.py', b'')
         
     def tearDown(self):
         self.r.restore()

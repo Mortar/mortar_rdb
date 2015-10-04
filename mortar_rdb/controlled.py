@@ -1,5 +1,6 @@
-# Copyright (c) 2011-2013 Simplistix Ltd
+# Copyright (c) 2011-2013 Simplistix Ltd, 2015 Chris Withers
 # See license.txt for license details.
+from __future__ import print_function
 """
 When a database is used, it's essential that code using the database
 only interacts with a database that is of the form it expects.
@@ -45,13 +46,9 @@ currently using.
 
 from argparse import ArgumentParser, RawDescriptionHelpFormatter
 from inspect import getmembers
-from os import remove, listdir
-from os.path import join, isabs
-from pkg_resources import resource_filename
 from pkgutil import walk_packages
 from sqlalchemy import MetaData, Table, create_engine
 from sqlalchemy.engine.reflection import Inspector
-from types import ClassType
 from zope.dottedname.resolve import resolve
 
 import sys
@@ -211,16 +208,16 @@ class Scripts:
         """
         names = Inspector.from_engine(self.engine).get_table_names()
         if names:
-            print
-            print "Refusing to create as the following tables exist:"
+            print()
+            print("Refusing to create as the following tables exist:")
             for name in names:
-                print name
+                print(name)
             return
-        print
-        print "Creating the following tables:"
+        print()
+        print("Creating the following tables:")
         for source in self.config.sources:
             for table in source.metadata.sorted_tables:
-                print table.name
+                print(table.name)
             source.metadata.create_all(self.engine)
 
     def drop(self):
@@ -228,10 +225,10 @@ class Scripts:
         # avoid import loop
         from . import drop_tables
         if self.failsafe:
-            print "Dropping all tables."
+            print("Dropping all tables.")
             drop_tables(self.engine)
         else:
-            print "Refusing to drop all tables due to failsafe."
+            print("Refusing to drop all tables due to failsafe.")
 
     def __call__(self, argv=None):
         parser = ArgumentParser(
@@ -266,7 +263,7 @@ They following tables are in the current configuration:
         options = parser.parse_args(argv)
 
         self.engine = create_engine(options.url)
-        print "For database at %s:" % options.url
+        print("For database at %s:" % options.url)
         options.method()
         
         

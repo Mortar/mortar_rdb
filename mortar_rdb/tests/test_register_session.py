@@ -2,6 +2,7 @@
 # See license.txt for license details.
 
 from mortar_rdb import register_session
+from mortar_rdb.compat import empty_str
 from mortar_rdb.interfaces import ISession
 from mock import Mock
 from sqlalchemy.orm.interfaces import SessionExtension
@@ -363,7 +364,7 @@ class TestUtility(TestCase):
         l.check((
                 'mortar_rdb',
                 'INFO',
-                "Registering session for 'sqlite://' with name u''"
+                "Registering session for 'sqlite://' with name "+empty_str
                 ))
 
     def test_logging_password(self):
@@ -377,7 +378,8 @@ class TestUtility(TestCase):
         l.check((
                 'mortar_rdb',
                 'INFO',
-                "Registering session for 'mysql://user:<password>@localhost/db' with name u''"
+                "Registering session for "
+                "'mysql://user:<password>@localhost/db' with name "+empty_str
                 ))
 
     def test_logging_name(self):

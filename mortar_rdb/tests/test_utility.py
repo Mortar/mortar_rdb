@@ -2,6 +2,7 @@
 # See license.txt for license details.
 
 from mortar_rdb import register_session, get_session
+from mortar_rdb.compat import empty_str
 from mortar_rdb.interfaces import ISession
 from testfixtures.components import TestComponents
 from sqlalchemy.exc import OperationalError
@@ -122,7 +123,7 @@ class TestUtility(TestCase):
         registry = getSiteManager()
         
         # check we don't register with no name:
-        with ShouldRaise(ComponentLookupError(ISession,u'')):
+        with ShouldRaise(ComponentLookupError(ISession, u'')):
             registry.getUtility(ISession)
 
         # check we do with the right name
@@ -209,5 +210,5 @@ class TestUtility(TestCase):
         l.check((
                 'mortar_rdb',
                 'INFO',
-                "Registering session for 'sqlite://' with name u''"
+                "Registering session for 'sqlite://' with name "+empty_str
                 ))
