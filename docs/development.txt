@@ -3,7 +3,17 @@ Development
 
 .. highlight:: bash
 
-Once you've obtained a source checkout, you can follow these
+This package is developed using continuous integration which can be
+found here:
+
+https://travis-ci.org/Mortar/mortar_rdb
+
+If you wish to contribute to this project, then you should fork the
+repository found here:
+
+https://github.com/Mortar/mortar_rdb
+
+Once that has been done and you have a checkout, you can follow these
 instructions to perform various development tasks:
 
 Setting up a virtualenv
