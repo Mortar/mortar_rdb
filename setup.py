@@ -39,6 +39,7 @@ setup(
             'mock',
             'manuel',
             'testfixtures',
+            'coveralls',
             ],
         build=[
             'sphinx',
