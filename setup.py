@@ -50,10 +50,5 @@ setup(
             'wheel',
         ]
         ),
-    entry_points = {
-        'console_scripts': [
-            'mortar_rdb_create = mortar_rdb.controlled:create_main',
-            ],
-        },
     )
 
