@@ -7,7 +7,4 @@ the `component architecture`__ to make it easy to develop projects
 using SQLAlchemy through their complete lifecycle.
 
 __ http://www.sqlalchemy.org/
-__ http://pypi.python.org/pypi/zope.component#zope-component-architecture
-
-It also includes some common models and mixins that are useful
-in a variety of projects.
+__ http://docs.zope.org/zope.component/narr.html
