@@ -3,6 +3,11 @@ Changes
 
 .. currentmodule:: mortar_rdb
 
+2.1.1 (4 Oct 2015)
+------------------
+
+- Deploy to PyPI using Travis.
+
 2.1.0 (4 Oct 2015)
 ------------------
 

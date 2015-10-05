@@ -35,7 +35,7 @@ deploy:
   provider: pypi
   user: chrisw
   password:
-    secure: QrmUWPegJzGIYGI8XGY7ztjHTbpMgVDLNV6f9fjjAoo8efOubJh/BASjWD3ESPlIo1j5tGCcSRP2MN1+30zBxq7a7oiCnthISx42DP6Ih+wLHFCu7uBm12AH96hIOQUAtQotNSwB9dJAJIKKom7xkrV/nStjbcqC7hosTZlTy6o=
+    secure: dMB0Gq9TMVZdNwYjq9fhIjCa5irrmH8dAha8VQrUMTbJZwdCJb9n8ODRUGsP/fPhYwtnQKiDMKJtHBFRJ71GxSxBNYLGrrVayHes6goGwkxznMBDx6OjROFh90rvtNp3QPaqSZid5md6hAqfWf90wRelWeFkqf2hR/mW10oDvlw=
   on:
     tags: true
     repo: Mortar/mortar_rdb
