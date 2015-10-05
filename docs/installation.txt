@@ -1,25 +1,17 @@
 Installation Instructions
 =========================
 
-The easiest way to install mortar_rdb is::
+The best way to install mortar_rdb is with pip::
 
-  easy_install mortar_rdb
+  pip install mortar_rdb
 
-Or, if you're using `zc.buildout`, just specify ``mortar_rdb`` as a
-required egg. 
+Of course, once it's installed, make sure it's in your ``requirements.txt``!
 
-If you're developing a package or application that relies on mortar_rdb,
-then add it as a dependency in your package's :file:`setup.py`, for example::
+.. topic:: Python version requirements
 
-  from setuptools import setup, find_packages
+  This package has been tested with Python 2.7, 3.4+, MySQL, Postgres and SQLite
+  on Linux, and is also expected to work on Mac OS X and Windows with any
+  database supported by SQLAlchemy.
 
-  setup(
-     # ...
-    install_requires = [
-        'mortar_rdb',
-       ])
 
-.. note:: 
 
-  This package requires Python 2.6 or newer, but does not work Python
-  3 or above. 
