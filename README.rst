@@ -6,8 +6,8 @@
 .. |Coveralls| image:: https://coveralls.io/repos/Mortar/mortar_rdb/badge.png?branch=master
 .. _Coveralls: https://coveralls.io/r/Mortar/mortar_rdb?branch=master
 
-.. |Docs| image:: https://readthedocs.org/projects/mortar_rdb/badge/?version=latest
-.. _Docs: http://mortar_rdb.readthedocs.org/en/latest/
+.. |Docs| image:: https://readthedocs.org/projects/mortar-rdb/badge/?version=latest
+.. _Docs: http://mortar-rdb.readthedocs.org/en/latest/
 
 mortar_rdb
 ==========
@@ -22,5 +22,4 @@ __ http://docs.zope.org/zope.component/narr.html
 Licensing
 =========
 
-Copyright (c) 2011-2013 Simplistix Ltd, 2015 Chris Withers
-See docs/license.txt for details.
+Copyright (c) 2011-2013 Simplistix Ltd, 2015 Chris Withers.

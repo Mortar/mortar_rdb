@@ -3,6 +3,19 @@ Changes
 
 .. currentmodule:: mortar_rdb
 
+2.1.0 (4 Oct 2015)
+------------------
+
+- Drop support for Python 2.6.
+
+- Add support for Python 3.4+.
+
+- Move to Read The Docs for documentation.
+
+- Move to virtualenv and nose for development.
+
+- Move to Travis CI and Coveralls for automated continuous testing.
+
 2.0.0 (29 Oct 2013)
 -------------------
 
@@ -24,7 +37,7 @@ Changes
 - Pass `None` as the default for `echo` rather than `False` on the
   advice of Daniel Holth.
 
-- When using :func:`~mortar_rdb.registerSession`, allow exlicit
+- When using :func:`~mortar_rdb.register_session`, allow explicit
   disabling of two-phase commit.
 
 - No longer log passwords during session registration.
