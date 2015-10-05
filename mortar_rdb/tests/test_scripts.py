@@ -28,12 +28,12 @@ class ScriptsMixin:
         try:
             with OutputCapture() as output:
                self._callable()(**kw)
-        except SystemExit as ex:
+        except SystemExit as ex:  # pragma: no cover
             # Catch this as the output will
             # likely tell us what the problem was
             pass
         output.compare(expected.lstrip())
-        if ex is not None:
+        if ex is not None:  # pragma: no cover
             raise ex
         
     def _callable(self):

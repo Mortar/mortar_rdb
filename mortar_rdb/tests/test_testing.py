@@ -58,8 +58,8 @@ class TestRegisterSessionFunctional(TestCase):
 
     def test_functional_echo_but_no_url(self):
         with Replacer() as r:
-            # make sure there's no DBURL
-            r.replace('os.environ',dict())
+            # make sure there's no DB_URL
+            r.replace('os.environ', dict())
             # hoover up the logging ;-)
             with OutputCapture():
                 register_session(echo=True)
@@ -68,51 +68,49 @@ class TestRegisterSessionFunctional(TestCase):
         # respect any DB_URL set here so that
         # we sure the real db here to make sure
         # delete works across all our DB types...
-        db_path = os.environ.get(
-            'DB_URL',
-            'sqlite:///'+os.path.join(self.dir.path,'test.db')
-            )
+        db_path = (
+            os.environ.get('DB_URL').strip() or
+            'sqlite:///'+os.path.join(self.dir.path, 'test.db')
+        )
 
         Base = sa_declarative_base()
 
         class Model1(Base):
             __tablename__ = 'model1'
             id = Column(Integer, primary_key=True)
-            model2_id = Column(Integer,ForeignKey('model2.id'))
+            model2_id = Column(Integer, ForeignKey('model2.id'))
             model2 = relationship("Model2")
 
         class Model2(Base):
             __tablename__ = 'model2'
             id = Column('id', Integer, primary_key=True)
 
-        config = Config(Source(
-                Model1.__table__,
-                Model2.__table__
-                ))
-        
         # create in one session
-        register_session(db_path,name='create',
-                        transactional=False,
-                        config=config)
+        register_session(db_path,
+                         name='create',
+                         transactional=False,
+                         metadata=Base.metadata)
         m1 = Model1()
         m2 = Model2()
         m1.model2 = m2
         session = get_session('create')
+        if db_path.startswith('sqlite:'):
+            session.execute('PRAGMA foreign_keys = ON')
         session.add(m1)
         session.add(m2)
         session.commit()
-        compare(session.query(Model1).count(),1)
-        compare(session.query(Model2).count(),1)
+        compare(session.query(Model1).count(), 1)
+        compare(session.query(Model2).count(), 1)
         session.rollback()
 
         # now register another session which should
         # blow the above away
         register_session(db_path,name='read',
                         transactional=False,
-                        config=config)
+                         metadata=Base.metadata)
         session = get_session('read')
-        compare(session.query(Model1).count(),0)
-        compare(session.query(Model2).count(),0)
+        compare(session.query(Model1).count(), 0)
+        compare(session.query(Model2).count(), 0)
         session.rollback()
 
     def test_only_some_packages(self):

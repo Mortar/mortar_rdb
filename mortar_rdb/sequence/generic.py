@@ -1,4 +1,4 @@
-# Copyright (c) 2011-2013 Simplistix Ltd
+# Copyright (c) 2011-2013 Simplistix Ltd, 2015 Chris Withers
 # See license.txt for license details.
 from mortar_rdb.controlled import Source
 from pkg_resources import resource_filename
@@ -52,8 +52,6 @@ class SequenceImplementation:
             select([sequences.c.current],
                    sequences.c.name==self.name)
             )
-        if r is None:
-            raise ValueError('No result returned for sequence %r'%self.name)
         return r
 
 source = Source(sequences)

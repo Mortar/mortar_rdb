@@ -20,7 +20,7 @@ database:
   from mortar_rdb import register_session, get_session
   from mortar_rdb.sequence.generic import sequences
   import transaction
-  register_session(db_url,'setup')
+  register_session(db_url, 'setup')
   with transaction.manager:
     session = get_session('setup')
     sequences.create(session.bind)
@@ -35,8 +35,8 @@ database:
   register_session(db_url)
   with transaction.manager:
       session = get_session()
-      register_sequence('seq1',session)
-      register_sequence('seq2',session)
+      register_sequence('seq1', session)
+      register_sequence('seq2', session)
 
 You'll notice that you need to manage a database transaction when you
 call :func:`~mortar_rdb.sequence.register_sequence`, either using the

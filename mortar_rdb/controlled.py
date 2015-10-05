@@ -196,11 +196,6 @@ class Scripts:
         self.config = config
         self.failsafe = failsafe
 
-
-    def _sources(self):
-        for source in self.config.sources:
-            yield source
-        
     def create(self):
         """
         Create all the tables in the configuration

@@ -61,59 +61,35 @@ class Execute(Manuel):
 
         command, args = block.command.split(None, 1)
         func, needs_ver = commands[command]
-        if func is None:
-            return
-        if needs_ver:
-            ver = 'sample'+str(globs['ver'])
-            args = args.replace('sample', ver)
 
         with Replacer() as r:
             r.replace('sys.argv',[command]+args.split())
             try:
                 with OutputCapture() as o:
                     func()
-            except SystemExit as e:
+            except SystemExit as e:  # pragma: no cover
                 print("Output:")
                 print(o.output.getvalue())
                 raise
-            except Exception as e:
+            except Exception as e:  # pragma: no cover
                 actual = '...traceback...\n'+repr(e)
             else:
                 actual = o.output.getvalue()
         expected = block.output
         actual = actual.replace(globs['dir'].path,'')
-        if needs_ver:
-            actual = actual.replace(ver,'sample')
         compare(expected, actual.strip())
 
 def run_tests(case, run):
     output = StringIO()
     runner = TextTestRunner(output)
     result = runner.run(makeSuite(case))
-    if result.errors or result.failures:
+    if result.errors or result.failures:  # pragma: no cover
         raise AssertionError('\n'+output.getvalue())
     compare(run, result.testsRun)
 
-def create_version(globs,ver):
-    # a lot of work, but we need to do it
-    # as reload simply doesn't fly :-/
-    import mortar_rdb
-    mortar_rdb._bases = {}
-    dir = globs['dir']
-    s = 'sample'+str(ver)
-    copytree(dir.getpath('sample'),dir.getpath(s))
-    for path in dir.actual(s,recursive=True):
-        base,ext = splitext(path)
-        if ext in ('.pyc','.pyo','.cfg') or not ext:
-            continue
-        fullpath = s+'/'+path
-        dir.write(fullpath,dir.read(fullpath).replace('sample',s))
-    globs['ver']=ver
-    
 def setUp(test):
     test.globs['tb'] = TestingBase()
     test.globs['run_tests'] = run_tests
-    test.globs['create_version'] = partial(create_version,test.globs)
     test.globs['dir'] = dir = TempDirectory()
     sys.path.append(dir.path)
     test.globs['db_url']=db_url='sqlite:///'+join(dir.path,'test.db')
