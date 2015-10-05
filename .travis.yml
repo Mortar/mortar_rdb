@@ -40,5 +40,6 @@ deploy:
     tags: true
     repo: Mortar/mortar_rdb
     python: "3.4"
+    condition: $DB = sqlite
   skip_cleanup: true
   distributions: "sdist bdist_wheel"
