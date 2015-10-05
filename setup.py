@@ -43,6 +43,7 @@ setup(
             ],
         build=[
             'sphinx',
+            'repoze.sphinx.autointerface',
             'pkginfo',
             'setuptools-git',
             'twine',
