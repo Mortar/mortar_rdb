@@ -18,7 +18,7 @@ setup(
         "for easy use in multi-package projects for any framework"
         ),
     long_description=open(description_path).read(),
-    url='http://www.simplistix.co.uk/software/python/mortar_rdb',
+    url='https://github.com/Mortar/mortar_rdb',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'License :: OSI Approved :: MIT License',
