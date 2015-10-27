@@ -89,7 +89,7 @@ def register_session(url=None,
 
     url = str(engine.url)
     if engine.url.password is not None:
-        url = url.replace(engine.url.password, '<password>')
+        url = url.replace(':'+engine.url.password, ':<password>', 1)
     logger.info('Registering session for %r with name %r',
                 url, name)
 

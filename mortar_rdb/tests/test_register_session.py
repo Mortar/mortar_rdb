@@ -382,6 +382,21 @@ class TestUtility(TestCase):
                 "'mysql://user:<password>@localhost/db' with name "+empty_str
                 ))
 
+    def test_logging_username_password_db_same(self):
+        self.engine.url=self.MockUrl('mysql://proj:proj@localhost/proj',
+                                     'proj',
+                                     self.engine)
+
+        with LogCapture() as l:
+            register_session('sqlite://')
+
+        l.check((
+                'mortar_rdb',
+                'INFO',
+                "Registering session for "
+                "'mysql://proj:<password>@localhost/proj' with name "+empty_str
+                ))
+
     def test_logging_name(self):
         self.engine.url=self.MockUrl('sqlite://',None,self.engine)
         
