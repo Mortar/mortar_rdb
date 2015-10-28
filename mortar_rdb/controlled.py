@@ -19,7 +19,7 @@ Packages, Models and Tables
 
 :mod:`SQLAlchemy` uses :class:`~sqlalchemy.schema.Table` objects that
 are mapped to one or more model classes. These objects are defined
-within python packages
+within python packages.
 
 Configurations
 ~~~~~~~~~~~~~~
@@ -33,7 +33,7 @@ defines its own tables.
 A :class:`~mortar_rdb.controlled.Config` is a way of expressing
 which tables should be expected in a database.
 
-It general, it is recommended that a
+In general, it is recommended that a
 :class:`~mortar_rdb.controlled.Config` is defined once, in whatever
 package 'owns' a particular database. For example, an application may
 define a configuration for its own tables and those of any packages on
@@ -107,7 +107,7 @@ def scan(package, tables=()):
     if hasattr(package_ob, '__path__'):
         for importer, modname, ispkg in walk_packages(
             package_ob.__path__, package_ob.__name__+'.'
-            ):
+        ):
             try:
                 __import__(modname)
             except ImportError:
@@ -190,8 +190,7 @@ class Scripts:
       production database.
     """
 
-    def __init__(self,url,config,failsafe):
-        # avoid import loop
+    def __init__(self, url, config, failsafe):
         self.default_url = url
         self.config = config
         self.failsafe = failsafe
@@ -234,8 +233,7 @@ The database to be acted on is at:
 
 They following tables are in the current configuration:
 %s
-""" % ( self.default_url,
-        ', '.join(self.config.tables)))
+""" % (self.default_url, ', '.join(self.config.tables)))
         
         parser.add_argument(
             '--url',
