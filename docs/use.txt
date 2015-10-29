@@ -221,7 +221,6 @@ applications :class:`~mortar_rdb.controlled.Config` as follows::
 
   $ bin/db create
   For database at sqlite:////test.db:
-
   Creating the following tables:
   user
 
