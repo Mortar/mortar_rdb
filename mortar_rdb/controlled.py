@@ -1,6 +1,7 @@
 # Copyright (c) 2011-2013 Simplistix Ltd, 2015 Chris Withers
 # See license.txt for license details.
-from __future__ import print_function
+import logging
+
 """
 When a database is used, it's essential that code using the database
 only interacts with a database that is of the form it expects.
@@ -52,6 +53,8 @@ from sqlalchemy.engine.reflection import Inspector
 from zope.dottedname.resolve import resolve
 
 import sys
+
+logger = logging.getLogger(__name__)
 
 class Source:
     """
@@ -203,16 +206,14 @@ class Scripts:
         """
         names = Inspector.from_engine(self.engine).get_table_names()
         if names:
-            print()
-            print("Refusing to create as the following tables exist:")
+            logger.error("Refusing to create as the following tables exist:")
             for name in names:
-                print(name)
+                logger.error(name)
             return
-        print()
-        print("Creating the following tables:")
+        logger.info("Creating the following tables:")
         for source in self.config.sources:
             for table in source.metadata.sorted_tables:
-                print(table.name)
+                logger.info(table.name)
             source.metadata.create_all(self.engine)
 
     def drop(self):
@@ -220,10 +221,10 @@ class Scripts:
         # avoid import loop
         from . import drop_tables
         if self.failsafe:
-            print("Dropping all tables.")
+            logger.info("Dropping all tables.")
             drop_tables(self.engine)
         else:
-            print("Refusing to drop all tables due to failsafe.")
+            logger.error("Refusing to drop all tables due to failsafe.")
 
     def setup_parser(self, parser):
         parser.formatter_class = RawDescriptionHelpFormatter
@@ -258,16 +259,23 @@ class Scripts:
                 )
             command.set_defaults(method=getattr(self,name))
 
+    def setup_logging(self):
+        handler = logging.StreamHandler()
+        handler.setLevel(logging.INFO)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+
     def run(self, db_url, options):
         db_url = options.url or db_url
         self.engine = create_engine(db_url)
-        print("For database at %s:" % db_url)
+        logger.info("For database at %s:", db_url)
         options.method()
 
     def __call__(self, argv=None):
         parser = ArgumentParser()
         self.setup_parser(parser)
         options = parser.parse_args(argv)
+        self.setup_logging()
         self.run(options.url, options)
 
         

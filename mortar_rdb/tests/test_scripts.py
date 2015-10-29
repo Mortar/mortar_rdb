@@ -2,21 +2,17 @@
 # See license.txt for license details.
 from argparse import ArgumentParser
 
-from mortar_rdb import drop_tables
-from mortar_rdb.controlled import Scripts, Config, Source
-from mock import Mock
 from sqlalchemy import (
-    Table, Column, Integer, String, Text, MetaData, create_engine
-    )
+    Table, Column, Integer, MetaData, create_engine
+)
 from sqlalchemy.engine.reflection import Inspector
 from testfixtures import (
-    OutputCapture, Replacer, compare, ShouldRaise
-    )
-from unittest import TestCase
+    OutputCapture, compare, LogCapture)
 
+from mortar_rdb.controlled import Scripts, Config, Source
 from .base import ControlledTest, PackageTest
 
-import os
+logger_name = 'mortar_rdb.controlled'
 
 class ScriptsMixin:
     
@@ -48,6 +44,8 @@ class TestCreate(ScriptsMixin, PackageTest):
     def setUp(self):
         super(TestCreate, self).setUp()
         self.db_url = 'sqlite:///'+self.dir.getpath('sqlite.db')
+        self.log = LogCapture()
+        self.addCleanup(self.log.uninstall)
 
     def _setup_config(self):
         # setup
@@ -71,7 +69,6 @@ class TestCreate(ScriptsMixin, PackageTest):
         self.db_url = 'junk'
         self._check('--url=%s create' % db_url, '''
 For database at %s:
-
 Creating the following tables:
 user
 ''' % (db_url, ))
@@ -81,7 +78,6 @@ user
         # check we can pass in argv if we're being called as a sub-script
         self._check('not for us', '''
 For database at %s:
-
 Creating the following tables:
 user
 ''' % (self.db_url, ),
@@ -126,22 +122,19 @@ user
         obj = self._callable()
         obj.setup_parser(parser)
 
-        with OutputCapture() as output:
-            args = parser.parse_args(['create'])
-            obj.run(db_url, args)
+        args = parser.parse_args(['create'])
+        obj.run(db_url, args)
 
-        output.compare('''
-For database at %s:
-
-Creating the following tables:
-user
-''' % (db_url, ))
+        self.log.check(
+            (logger_name, 'INFO', 'For database at '+db_url+':'),
+            (logger_name, 'INFO', 'Creating the following tables:'),
+            (logger_name, 'INFO', 'user'),
+        )
 
         expected_metadata = MetaData()
         self.mytable.tometadata(expected_metadata)
         self.db_url = db_url
         self._check_db(expected_metadata)
-
 
     def test_create_without_using_call_url_option_preferred(self):
         self._setup_config()
@@ -152,28 +145,43 @@ user
         obj = self._callable()
         obj.setup_parser(parser)
 
-        with OutputCapture() as output:
-            args = parser.parse_args(['--url', db_url, 'create'])
-            obj.run('absolute rubbish', args)
+        args = parser.parse_args(['--url', db_url, 'create'])
+        obj.run('absolute rubbish', args)
 
-        output.compare('''
-For database at %s:
-
-Creating the following tables:
-user
-''' % (db_url, ))
+        self.log.check(
+            (logger_name, 'INFO', 'For database at '+db_url+':'),
+            (logger_name, 'INFO', 'Creating the following tables:'),
+            (logger_name, 'INFO', 'user'),
+        )
 
         expected_metadata = MetaData()
         self.mytable.tometadata(expected_metadata)
         self.db_url = db_url
         self._check_db(expected_metadata)
 
+    def test_create_logging_not_printing(self):
+        self._setup_config()
+        parser = ArgumentParser()
+        obj = self._callable()
+        obj.setup_parser(parser)
+
+        with OutputCapture() as output:
+            args = parser.parse_args(['create'])
+            obj.run('absolute rubbish', args)
+
+        self.log.check(
+            (logger_name, 'INFO', 'For database at '+self.db_url+':'),
+            (logger_name, 'INFO', 'Creating the following tables:'),
+            (logger_name, 'INFO', 'user'),
+        )
+
+        output.compare('')
+
     def test_single_source(self):
         self._setup_config()
         # check         
         self._check('create','''
 For database at %s:
-
 Creating the following tables:
 user
 ''' % (self.db_url, ))
@@ -200,7 +208,6 @@ user
         
         self._check('create','''
 For database at %s:
-
 Creating the following tables:
 t1
 t2
@@ -217,7 +224,6 @@ t2
         # check         
         self._check('create','''
 For database at %s:
-
 Refusing to create as the following tables exist:
 user
 ''' % self.db_url)
