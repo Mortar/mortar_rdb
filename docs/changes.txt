@@ -3,6 +3,14 @@ Changes
 
 .. currentmodule:: mortar_rdb
 
+2.2.0 (29 Oct 2015)
+-------------------
+
+- More careful password masking.
+
+- Better support for using
+  :class:`controlled.Scripts` as part of another script framework.
+
 2.1.1 (4 Oct 2015)
 ------------------
 

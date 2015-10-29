@@ -10,7 +10,7 @@ description_path = os.path.join(base_dir, 'docs', 'description.txt')
 setup(
     name='mortar_rdb',
     author='Chris Withers',
-    version='2.1.1',
+    version='2.2.0',
     author_email='chris@simplistix.co.uk',
     license='MIT',
     description=(
