@@ -1,5 +1,6 @@
 # Copyright (c) 2011-2013 Simplistix Ltd, 2015 Chris Withers
 # See license.txt for license details.
+from argparse import ArgumentParser
 
 from mortar_rdb import drop_tables
 from mortar_rdb.controlled import Scripts, Config, Source
@@ -21,21 +22,20 @@ class ScriptsMixin:
     
     failsafe = True
     
-    def _check(self, s, expected, kw=None):
+    def _check(self, s, expected=None, kw=None):
         kw = kw or {}
         self.r.replace('sys.argv', ['X']+s.split())
         ex = None
         try:
             with OutputCapture() as output:
                self._callable()(**kw)
-        except SystemExit as ex:  # pragma: no cover
-            # Catch this as the output will
-            # likely tell us what the problem was
-            pass
+        except SystemExit as ex:
+            if expected is SystemExit:
+                return output.captured
         output.compare(expected.lstrip())
         if ex is not None:  # pragma: no cover
             raise ex
-        
+
     def _callable(self):
         return Scripts(
             self.db_url,
@@ -89,7 +89,85 @@ user
         expected_metadata = MetaData()
         self.mytable.tometadata(expected_metadata)
         self._check_db(expected_metadata)
-            
+
+    def test_help(self):
+        self._setup_config()
+        output = self._check('--help', expected=SystemExit)
+        self.assertTrue('acted on is at:\n'+self.db_url in output, output)
+        self.assertTrue('in the current configuration:\nuser\n' in output, output)
+        self.assertTrue('Create all the tables' in output, output)
+        self.assertTrue('Drop all tables' in output, output)
+        # db should be empty!
+        self._check_db(MetaData())
+
+    def test_help_with_our_parser(self):
+        self._setup_config()
+        parser = ArgumentParser()
+        self.db_url = None
+        obj = self._callable()
+        obj.setup_parser(parser)
+        with OutputCapture() as capture:
+            try:
+               parser.parse_args(['--help'])
+            except SystemExit as ex:
+                pass
+        output = capture.captured
+        self.assertFalse('acted on is at:\n' in output, output)
+        self.assertTrue('in the current configuration:\nuser\n' in output, output)
+        self.assertTrue('Create all the tables' in output, output)
+        self.assertTrue('Drop all tables' in output, output)
+
+    def test_create_without_using_call(self):
+        self._setup_config()
+        db_url = self.db_url
+        self.db_url = None
+
+        parser = ArgumentParser()
+        obj = self._callable()
+        obj.setup_parser(parser)
+
+        with OutputCapture() as output:
+            args = parser.parse_args(['create'])
+            obj.run(db_url, args)
+
+        output.compare('''
+For database at %s:
+
+Creating the following tables:
+user
+''' % (db_url, ))
+
+        expected_metadata = MetaData()
+        self.mytable.tometadata(expected_metadata)
+        self.db_url = db_url
+        self._check_db(expected_metadata)
+
+
+    def test_create_without_using_call_url_option_preferred(self):
+        self._setup_config()
+        db_url = self.db_url
+        self.db_url = None
+
+        parser = ArgumentParser()
+        obj = self._callable()
+        obj.setup_parser(parser)
+
+        with OutputCapture() as output:
+            args = parser.parse_args(['--url', db_url, 'create'])
+            obj.run('absolute rubbish', args)
+
+        output.compare('''
+For database at %s:
+
+Creating the following tables:
+user
+''' % (db_url, ))
+
+        expected_metadata = MetaData()
+        self.mytable.tometadata(expected_metadata)
+        self.db_url = db_url
+        self._check_db(expected_metadata)
+
     def test_single_source(self):
         self._setup_config()
         # check         

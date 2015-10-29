@@ -177,7 +177,8 @@ class Scripts:
 
     :param url:
       The :mod:`SQLAlchemy` url to connect to the database to be
-      managed.
+      managed. If this isn't known at the time when this class is
+      instantiated, then use ``None``.
 
     :param config:
       A :class:`Config` instance describing the schema of the database
@@ -224,17 +225,18 @@ class Scripts:
         else:
             print("Refusing to drop all tables due to failsafe.")
 
-    def __call__(self, argv=None):
-        parser = ArgumentParser(
-            formatter_class=RawDescriptionHelpFormatter,
-            description="""
-The database to be acted on is at:
-%s
-
-They following tables are in the current configuration:
-%s
-""" % (self.default_url, ', '.join(self.config.tables)))
-        
+    def setup_parser(self, parser):
+        parser.formatter_class = RawDescriptionHelpFormatter
+        if parser.description is None:
+            parser.description = ''
+        if self.default_url:
+            parser.description += (
+                '\nThe database to be acted on is at:\n' + self.default_url
+            )
+        parser.description += (
+            '\n\nThe following tables are in the current configuration:\n' +
+            ', '.join(self.config.tables)
+        )
         parser.add_argument(
             '--url',
             default = self.default_url,
@@ -244,21 +246,30 @@ They following tables are in the current configuration:
         commands = parser.add_subparsers()
 
         for name in dir(self.__class__):
-            if name.startswith('_'):
+            if name[0] == '_':
                 continue
-            doc = getattr(self,name).__doc__.strip()
-            command =  commands.add_parser(
+            doc = getattr(self, name).__doc__
+            if doc is None:
+                continue
+            doc = doc.strip()
+            command = commands.add_parser(
                 name,
                 help=doc
                 )
             command.set_defaults(method=getattr(self,name))
 
-        options = parser.parse_args(argv)
-
-        self.engine = create_engine(options.url)
-        print("For database at %s:" % options.url)
+    def run(self, db_url, options):
+        db_url = options.url or db_url
+        self.engine = create_engine(db_url)
+        print("For database at %s:" % db_url)
         options.method()
-        
+
+    def __call__(self, argv=None):
+        parser = ArgumentParser()
+        self.setup_parser(parser)
+        options = parser.parse_args(argv)
+        self.run(options.url, options)
+
         
         
 
