@@ -66,7 +66,7 @@ class TestCreate(ScriptsMixin, PackageTest):
         self._setup_config()        
         # make sure we're actually using the url from the command line:
         db_url = self.db_url
-        self.db_url = 'junk'
+        self.db_url = 'junk://'
         self._check('--url=%s create' % db_url, '''
 For database at %s:
 Creating the following tables:
@@ -95,6 +95,12 @@ user
         self.assertTrue('Drop all tables' in output, output)
         # db should be empty!
         self._check_db(MetaData())
+
+    def test_password_in_help(self):
+        self.db_url = "postgres://user:pw@localhost/db"
+        self._setup_config()
+        output = self._check('--help', expected=SystemExit)
+        self.assertFalse('pw' in output, output)
 
     def test_help_with_our_parser(self):
         self._setup_config()

@@ -1,7 +1,5 @@
 # Copyright (c) 2011-2013 Simplistix Ltd, 2015 Chris Withers
 # See license.txt for license details.
-import logging
-
 """
 When a database is used, it's essential that code using the database
 only interacts with a database that is of the form it expects.
@@ -50,8 +48,10 @@ from inspect import getmembers
 from pkgutil import walk_packages
 from sqlalchemy import MetaData, Table, create_engine
 from sqlalchemy.engine.reflection import Inspector
+from sqlalchemy.engine.url import make_url
 from zope.dottedname.resolve import resolve
 
+import logging
 import sys
 
 logger = logging.getLogger(__name__)
@@ -232,8 +232,9 @@ class Scripts:
             parser.description = ''
         if self.default_url:
             parser.description += (
-                '\nThe database to be acted on is at:\n' + self.default_url
-            )
+                '\nThe database to be acted on is at:\n%r' % (
+                make_url(self.default_url)
+            ))
         parser.description += (
             '\n\nThe following tables are in the current configuration:\n' +
             ', '.join(self.config.tables)
@@ -268,7 +269,7 @@ class Scripts:
     def run(self, db_url, options):
         db_url = options.url or db_url
         self.engine = create_engine(db_url)
-        logger.info("For database at %s:", db_url)
+        logger.info("For database at %r:", self.engine.url)
         options.method()
 
     def __call__(self, argv=None):

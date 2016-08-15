@@ -210,5 +210,5 @@ class TestUtility(TestCase):
         l.check((
                 'mortar_rdb',
                 'INFO',
-                "Registering session for 'sqlite://' with name "+empty_str
+                "Registering session for sqlite:// with name "+empty_str
                 ))

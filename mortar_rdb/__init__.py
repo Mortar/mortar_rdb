@@ -87,11 +87,8 @@ def register_session(url=None,
     else:
         engine = create_engine(url, echo=echo)
 
-    url = str(engine.url)
-    if engine.url.password is not None:
-        url = url.replace(':'+engine.url.password, ':<password>', 1)
     logger.info('Registering session for %r with name %r',
-                url, name)
+                engine.url, name)
 
     params = dict(
             bind = engine,

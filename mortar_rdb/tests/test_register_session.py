@@ -1,5 +1,7 @@
 # Copyright (c) 2011-2013 Simplistix Ltd
 # See license.txt for license details.
+from sqlalchemy import create_engine
+from sqlalchemy.engine.url import make_url
 
 from mortar_rdb import register_session
 from mortar_rdb.compat import empty_str
@@ -347,16 +349,8 @@ class TestUtility(TestCase):
                   'provided': ISession})
                 ],self.m.method_calls)
 
-    class MockUrl(Mock):
-        def __init__(self,url,password,parent):
-            Mock.__init__(self,parent=parent)
-            self._url = url
-            self.password = password
-        def __str__(self):
-            return self._url
-            
     def test_logging_normal(self):
-        self.engine.url=self.MockUrl('sqlite://',None,self.engine)
+        self.engine.url = make_url('sqlite://')
         
         with LogCapture() as l:
             register_session('sqlite://')
@@ -364,13 +358,11 @@ class TestUtility(TestCase):
         l.check((
                 'mortar_rdb',
                 'INFO',
-                "Registering session for 'sqlite://' with name "+empty_str
+                "Registering session for sqlite:// with name "+empty_str
                 ))
 
     def test_logging_password(self):
-        self.engine.url=self.MockUrl('mysql://user:pass@localhost/db',
-                                     'pass',
-                                     self.engine)
+        self.engine.url = make_url('mysql://user:pass@localhost/db')
         
         with LogCapture() as l:
             register_session('sqlite://')
@@ -379,13 +371,11 @@ class TestUtility(TestCase):
                 'mortar_rdb',
                 'INFO',
                 "Registering session for "
-                "'mysql://user:<password>@localhost/db' with name "+empty_str
+                "mysql://user:***@localhost/db with name "+empty_str
                 ))
 
     def test_logging_username_password_db_same(self):
-        self.engine.url=self.MockUrl('mysql://proj:proj@localhost/proj',
-                                     'proj',
-                                     self.engine)
+        self.engine.url=make_url('mysql://proj:proj@localhost/proj')
 
         with LogCapture() as l:
             register_session('sqlite://')
@@ -394,17 +384,18 @@ class TestUtility(TestCase):
                 'mortar_rdb',
                 'INFO',
                 "Registering session for "
-                "'mysql://proj:<password>@localhost/proj' with name "+empty_str
+                "mysql://proj:***@localhost/proj with name "+empty_str
                 ))
 
     def test_logging_name(self):
-        self.engine.url=self.MockUrl('sqlite://',None,self.engine)
-        
+        engine = create_engine('sqlite://')
+        self.engine.url=engine.url
+
         with LogCapture() as l:
             register_session('sqlite://','foo')
             
         l.check((
                 'mortar_rdb',
                 'INFO',
-                "Registering session for 'sqlite://' with name 'foo'"
+                "Registering session for sqlite:// with name 'foo'"
                 ))
