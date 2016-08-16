@@ -3,6 +3,12 @@ Changes
 
 .. currentmodule:: mortar_rdb
 
+2.2.1 (15 Aug 2016)
+-------------------
+
+- Stop passwords showing in logging from
+  :class:`~mortar_rdb.controlled.Scripts`.
+
 2.2.0 (29 Oct 2015)
 -------------------
 
