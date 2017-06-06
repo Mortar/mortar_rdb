@@ -44,7 +44,7 @@ setup(
             'nose-fixes',
             'mock',
             'manuel',
-            'testfixtures',
+            'testfixtures < 5.0.0',
             'coveralls',
             ],
         build=[
