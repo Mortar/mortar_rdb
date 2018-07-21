@@ -9,7 +9,7 @@ env:
   - DB=postgres
 
 python:
-  - "3.4"
+  - "3.6"
   - "2.7"
 
 # command to install dependencies
@@ -39,7 +39,7 @@ deploy:
   on:
     tags: true
     repo: Mortar/mortar_rdb
-    python: "3.4"
+    python: "3.6"
     condition: $DB = sqlite
   skip_cleanup: true
   distributions: "sdist bdist_wheel"
