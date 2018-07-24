@@ -72,9 +72,11 @@ class TestScan(PackageTest):
     def test_doesnt_exist(self):
         if PY2:
             text = 'No module named package'
+            exc = ImportError
         else:
             text = "No module named 'test.package'"
-        with ShouldRaise(ImportError(text)):
+            exc = ModuleNotFoundError
+        with ShouldRaise(exc(text)):
             scan('test.package.nothere')
 
     def test_module(self):
