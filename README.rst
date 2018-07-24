@@ -22,4 +22,4 @@ __ http://docs.zope.org/zope.component/narr.html
 Licensing
 =========
 
-Copyright (c) 2011-2013 Simplistix Ltd, 2015 Chris Withers.
+See ``docs/license.txt``.

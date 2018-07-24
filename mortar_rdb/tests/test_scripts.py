@@ -1,5 +1,3 @@
-# Copyright (c) 2011-2013 Simplistix Ltd, 2015 Chris Withers
-# See license.txt for license details.
 from argparse import ArgumentParser
 
 from sqlalchemy import (

@@ -1,5 +1,3 @@
-# Copyright (c) 2011-2013 Simplistix Ltd, 2015 Chris Withers
-# See license.txt for license details.
 from __future__ import print_function
 
 from ..compat import StringIO

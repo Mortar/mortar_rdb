@@ -1,6 +1,3 @@
-# Copyright (c) 2011 Simplistix Ltd
-# See license.txt for license details.
-
 from mortar_rdb import declarative_base
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.ext.declarative import DeclarativeMeta

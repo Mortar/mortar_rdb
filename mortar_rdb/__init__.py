@@ -1,6 +1,3 @@
-# Copyright (c) 2011-2013 Simplistix Ltd
-# See license.txt for license details.
-
 from logging import getLogger
 from sqlalchemy import create_engine
 from sqlalchemy.engine.reflection import Inspector

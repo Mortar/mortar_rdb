@@ -1,6 +1,3 @@
-# Copyright (c) 2011 Simplistix Ltd
-# See license.txt for license details.
-
 from mortar_rdb import register_session, get_session
 from mortar_rdb.compat import empty_str
 from mortar_rdb.interfaces import ISession

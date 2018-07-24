@@ -1,6 +1,3 @@
-# Copyright (c) 2011-2013 Simplistix Ltd
-# See license.txt for license details.
-
 import os
 
 from mortar_rdb.testing import register_session, TestingBase

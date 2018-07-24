@@ -1,6 +1,3 @@
-# Copyright (c) 2012-2013 Simplistix Ltd, 2015 Chris Withers
-# See license.txt for license details.
-
 import os
 from setuptools import setup, find_packages
 

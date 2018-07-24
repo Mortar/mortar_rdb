@@ -1,6 +1,3 @@
-# Copyright (c) 2011-2013 Simplistix Ltd
-# See license.txt for license details.
-
 from mortar_rdb.controlled import Scripts, Config, Source
 from sqlalchemy import (
     Table, Column, Integer, String, Text, MetaData, create_engine

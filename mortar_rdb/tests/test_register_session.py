@@ -1,5 +1,3 @@
-# Copyright (c) 2011-2013 Simplistix Ltd
-# See license.txt for license details.
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import make_url
 

@@ -4,3 +4,4 @@
 /develop-eggs
 /docs/_build
 .coverage*
+.*cache

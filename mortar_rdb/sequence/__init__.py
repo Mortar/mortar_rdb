@@ -1,5 +1,3 @@
-# Copyright (c) 2011 Simplistix Ltd
-# See license.txt for license details.
 """
 Database independent provision of non-repeating, always-incrementing
 sequences of integers.
