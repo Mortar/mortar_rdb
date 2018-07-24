@@ -66,7 +66,7 @@ class TestRegisterSessionFunctional(TestCase):
         # we sure the real db here to make sure
         # delete works across all our DB types...
         db_path = (
-            os.environ.get('DB_URL').strip() or
+            os.environ.get('DB_URL', '').strip() or
             'sqlite:///'+os.path.join(self.dir.path, 'test.db')
         )
 
