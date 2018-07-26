@@ -35,7 +35,7 @@ Running the tests
 
 Once you've set up a virtualenv, the tests can be run as follows::
 
-  $ bin/nosetests
+  $ bin/pytest
 
 Some of the tests can be run against a specific database to check
 compatibility with specific database back ends. To do this, set the 

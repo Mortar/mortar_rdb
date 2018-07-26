@@ -24,9 +24,9 @@ before_script:
   - sh -c "if [ $DB = 'mysql' ]; then mysql -e 'create database test' && mysql -e 'GRANT ALL ON test.* TO 'travis'@'localhost';'; fi"
 # command to run tests, e.g. python setup.py test
 script:
-  - sh -c "if [ $DB = 'sqlite' ]; then export DB_URL=; nosetests --with-cov --cov=mortar_rdb; fi;"
-  - sh -c "if [ $DB = 'postgres' ]; then export DB_URL='postgres://postgres@localhost/test'; nosetests --with-cov --cov=mortar_rdb; fi;"
-  - sh -c "if [ $DB = 'mysql' ]; then export DB_URL='mysql+pymysql://travis@localhost/test'; nosetests --with-cov --cov=mortar_rdb; fi; "
+  - sh -c "if [ $DB = 'sqlite' ]; then export DB_URL=; coverage run --source mortar_rdb -m pytest; fi;"
+  - sh -c "if [ $DB = 'postgres' ]; then export DB_URL='postgres://postgres@localhost/test'; coverage run --source mortar_rdb -m pytest; fi;"
+  - sh -c "if [ $DB = 'mysql' ]; then export DB_URL='mysql+pymysql://travis@localhost/test'; coverage run --source mortar_rdb -m pytest; fi; "
 
 after_success:
   - coveralls

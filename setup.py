@@ -36,12 +36,11 @@ setup(
         ),
     extras_require=dict(
         test=[
-            'nose',
-            'nose-cov',
-            'nose-fixes',
+            'pytest',
+            'coverage',
             'mock',
-            'manuel',
-            'testfixtures < 5.0.0',
+            'sybil',
+            'testfixtures',
             'coveralls',
             ],
         build=[
