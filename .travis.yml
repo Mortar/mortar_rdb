@@ -4,9 +4,13 @@ language: python
 sudo: false
 
 env:
-  - DB=sqlite
-  - DB=mysql
-  - DB=postgres
+  global:
+    # travis encrypt COVERALLS_REPO_TOKEN=...
+    secure: "aUhouOzKmbs0VHCOJotGQVZKQy2NDQ8nGlx/k5ObN4Py3hLfc90ZOi/j54MHMV3MuNLYxHDbrOiUbE5eaYdKH7IGJTvJBp5NLjfTCUztpO5pM7cjrgLK7AWTNPQMqkmdC26XqWH4+5QCj1nV1drUrsSxm6+MsC5OXKg/dhE82M8="
+  matrix:
+    - DB=sqlite
+    - DB=mysql
+    - DB=postgres
 
 python:
   - "3.6"
@@ -29,17 +33,37 @@ script:
   - sh -c "if [ $DB = 'mysql' ]; then export DB_URL='mysql+pymysql://travis@localhost/test'; coverage run --source mortar_rdb -m pytest; fi; "
 
 after_success:
-  - coveralls
+  - "COVERALLS_PARALLEL=true coveralls"
 
-deploy:
-  provider: pypi
-  user: chrisw
-  password:
-    secure: dMB0Gq9TMVZdNwYjq9fhIjCa5irrmH8dAha8VQrUMTbJZwdCJb9n8ODRUGsP/fPhYwtnQKiDMKJtHBFRJ71GxSxBNYLGrrVayHes6goGwkxznMBDx6OjROFh90rvtNp3QPaqSZid5md6hAqfWf90wRelWeFkqf2hR/mW10oDvlw=
-  on:
-    tags: true
-    repo: Mortar/mortar_rdb
-    python: "3.6"
-    condition: $DB = sqlite
-  skip_cleanup: true
-  distributions: "sdist bdist_wheel"
+jobs:
+  include:
+
+    - stage: coverage
+      if: type != cron
+      python: 3.6
+      after_success: skip
+
+      install: "pip install -U coveralls-check"
+      script: "coveralls-check $TRAVIS_COMMIT --parallel-build-number $TRAVIS_BUILD_NUMBER --repo-token $COVERALLS_REPO_TOKEN"
+
+    - stage: release
+      if: tag IS present
+      python: 3.6
+      script: skip
+      # work around https://github.com/travis-ci/travis-ci/issues/8337:
+      after_success: true
+
+      install:
+      - "pip install --upgrade pip setuptools"
+      - "pip install -Ue .[build]"
+      deploy:
+        provider: pypi
+        user: chrisw
+        password:
+          secure: dMB0Gq9TMVZdNwYjq9fhIjCa5irrmH8dAha8VQrUMTbJZwdCJb9n8ODRUGsP/fPhYwtnQKiDMKJtHBFRJ71GxSxBNYLGrrVayHes6goGwkxznMBDx6OjROFh90rvtNp3QPaqSZid5md6hAqfWf90wRelWeFkqf2hR/mW10oDvlw=
+        on:
+          tags: true
+          repo: Mortar/mortar_rdb
+          python: 3.6
+        skip_cleanup: true
+        distributions: "sdist bdist_wheel"
