@@ -118,6 +118,8 @@ class TestingBase(object):
           # your test code here
     """
 
+    __test__ = False
+
     def __init__(self):
         self.original = mortar_rdb._bases
         mortar_rdb._bases = {}
