@@ -3,7 +3,7 @@ import sys
 import textwrap
 from doctest import REPORT_NDIFF, ELLIPSIS
 from functools import partial
-from io import StringIO
+from mortar_rdb.compat import StringIO
 from os.path import join
 from unittest import TextTestRunner, makeSuite
 
