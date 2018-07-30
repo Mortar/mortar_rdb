@@ -22,6 +22,8 @@ BASHBLOCK_END = re.compile(r'(\n\Z|\n(?=\S))')
 
 
 def parse_bash_blocks(document):
+    if document.path.endswith('development.txt'):
+        return
     for start_match, end_match, source in document.find_region_sources(
         BASHBLOCK_START, BASHBLOCK_END
     ):
@@ -108,7 +110,7 @@ pytest_collect_file = Sybil(
         FileParser('dir'),
         parse_bash_blocks,
     ],
-    pattern='use.txt',
+    pattern='*.txt',
     setup=setup,
     teardown=teardown,
 ).pytest()
