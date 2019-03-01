@@ -259,9 +259,9 @@ class TestTestingBase(TestCase):
         tb.restore()
         b3 = declarative_base()
         # checks
-        self.failIf(b1 is b2)
-        self.failIf(b3 is b2)
-        self.failUnless(b1 is b3)
+        self.assertFalse(b1 is b2)
+        self.assertFalse(b3 is b2)
+        self.assertTrue(b1 is b3)
 
     def test_context_manager(self):
         b1 = declarative_base()
@@ -269,6 +269,6 @@ class TestTestingBase(TestCase):
             b2 = declarative_base()
         b3 = declarative_base()
         # checks
-        self.failIf(b1 is b2)
-        self.failIf(b3 is b2)
-        self.failUnless(b1 is b3)
+        self.assertFalse(b1 is b2)
+        self.assertFalse(b3 is b2)
+        self.assertTrue(b1 is b3)
