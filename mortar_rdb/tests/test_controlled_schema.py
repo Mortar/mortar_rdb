@@ -33,9 +33,9 @@ class TestSource(TestCase):
         # check we have the right tables
         compare(['user'], s.metadata.tables.keys())
         # check we have a new metadata object
-        self.failIf(metadata is s.metadata)
+        self.assertFalse(metadata is s.metadata)
         # check we have a copy of the table
-        self.failIf(mytable is s.metadata.tables['user'])
+        self.assertFalse(mytable is s.metadata.tables['user'])
 
     def test_class(self):
 
@@ -92,7 +92,7 @@ class User(declarative_base()):
         
         s = scan('somemodule')
 
-        self.failUnless(isinstance(s, Source))
+        self.assertTrue(isinstance(s, Source))
         compare(['user'], s.metadata.tables.keys())
         
     def test_package(self):
@@ -117,7 +117,7 @@ class Table2(declarative_base()):
 
         s = scan('somepackage')
 
-        self.failUnless(isinstance(s, Source))
+        self.assertTrue(isinstance(s, Source))
         compare(['table1','table2'], sorted(s.metadata.tables.keys()))
         
     def test_package_import_loop(self):
@@ -158,7 +158,7 @@ if __name__=='__main__':
         from demo.model import config
         
         s = config.sources[0]
-        self.failUnless(isinstance(s,Source))
+        self.assertTrue(isinstance(s,Source))
         compare(['table'],sorted(s.metadata.tables.keys()))
         
     def test_type_of_things_to_scan_for(self):
@@ -196,7 +196,7 @@ class Model3(declarative_base()):
         
         s = scan('somemodule',tables=[table1])
 
-        self.failUnless(isinstance(s, Source))
+        self.assertTrue(isinstance(s, Source))
         compare(['table1', 'table3'], sorted(s.metadata.tables.keys()))
 
     def test_single_table_inheritance(self):
@@ -222,7 +222,7 @@ class Type2Thing(BaseThing):
 """)
         s = scan('somemodule')
 
-        self.failUnless(isinstance(s,Source))
+        self.assertTrue(isinstance(s,Source))
         compare(['table'], sorted(s.metadata.tables.keys()))
         # for fun:
         compare(['id', 'foo', 'bar'], s.metadata.tables['table'].c.keys())
@@ -253,7 +253,7 @@ class Model3(declarative_base()):
         
         s = scan('package1')
 
-        self.failUnless(isinstance(s, Source))
+        self.assertTrue(isinstance(s, Source))
         compare(['table2','table3'], sorted(s.metadata.tables.keys()))
 
     

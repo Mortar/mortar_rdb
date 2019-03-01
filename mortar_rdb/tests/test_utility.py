@@ -75,7 +75,7 @@ class TestUtility(TestCase):
         self.assertEqual(model2.name,'foo')
 
         # paranoia
-        self.failIf(model1 is model2)
+        self.assertFalse(model1 is model2)
         
     def test_register(self):
         register_session('sqlite://')
@@ -124,7 +124,7 @@ class TestUtility(TestCase):
             registry.getUtility(ISession)
 
         # check we do with the right name
-        self.failUnless(isinstance(
+        self.assertTrue(isinstance(
                 registry.getUtility(ISession,'foo')(),
                 Session
                 ))
@@ -139,8 +139,7 @@ class TestUtility(TestCase):
             self.Base.metadata.create_all(session.bind)
             session.add(self.Model(id=1,name='foo'))
         
-        compare(1,
-                session.scalar(self.Model.__table__.select().count()))
+        compare(session.query(self.Model).count(), expected=1)
         
     def test_transaction_no_session_usage(self):
         register_session('sqlite://')
@@ -153,10 +152,8 @@ class TestUtility(TestCase):
                 self.Model.__table__.insert().values(name='test')
                 )
 
-        compare(1,
-                session.scalar(self.Model.__table__.select().count()))
+        compare(session.query(self.Model).count(), expected=1)
             
-        
     def test_no_transaction(self):
         register_session('sqlite://',transactional=False)
         
@@ -166,8 +163,7 @@ class TestUtility(TestCase):
         session.add(self.Model(id=1,name='foo'))
         session.commit()
     
-        compare(1,
-                session.scalar(self.Model.__table__.select().count()))
+        compare(session.query(self.Model).count(), expected=1)
 
     def test_different_sessions_per_thread(self):
         
@@ -184,7 +180,7 @@ class TestUtility(TestCase):
         t1.join()
         t2.join()
 
-        self.assertNotEquals(
+        self.assertNotEqual(
             id(t1.resulting_session),
             id(t2.resulting_session),
             )
@@ -197,7 +193,7 @@ class TestUtility(TestCase):
         s1 = get_session()
         s2 = get_session()
 
-        self.assertNotEquals(id(s1),id(s2))
+        self.assertNotEqual(id(s1),id(s2))
         
     def test_logging_functional(self):
         

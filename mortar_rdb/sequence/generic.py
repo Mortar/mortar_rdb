@@ -1,3 +1,5 @@
+from sqlalchemy.sql.functions import count
+
 from mortar_rdb.controlled import Source
 from pkg_resources import resource_filename
 from sqlalchemy import MetaData, Table, Column, String, Integer
@@ -20,7 +22,7 @@ class SequenceImplementation:
 
     def __init__(self,name,session):
         self.name = name
-        if not session.scalar(sequences.count(sequences.c.name==name)):
+        if not session.scalar(select([count()], sequences.c.name==self.name)):
             session.execute(sequences.insert(dict(name=name)))
 
     def next(self,session):
