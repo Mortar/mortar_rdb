@@ -1,0 +1,98 @@
+version: 2.1
+
+#orbs:
+#  python: cjw296/python-ci@1.0.2
+#
+
+jobs:
+  python37-sqlite:
+    docker:
+      - image: circleci/python:3.7
+        environment:
+          DB_URL: ""
+    steps:
+      - checkout
+      - run:
+          name: "Install Project"
+          command: |
+            sudo pip install -e .[test]
+      - run:
+          name: "Run Tests"
+          command: coverage run --source mortar_rdb -m pytest
+
+  python37-postgres:
+    docker:
+      - image: circleci/python:3.7
+        environment:
+          DB_URL: postgresql://postgres@localhost/circle_test
+      - image: circleci/postgres:11.2-alpine-ram
+    steps:
+      - checkout
+      - run:
+          name: "Install Project"
+          command: |
+            sudo pip install -e .[test]
+            sudo pip install psycopg2
+      - run:
+          name: "Run Tests"
+          command: coverage run --source mortar_rdb -m pytest
+
+  python37-mysql:
+    docker:
+      - image: circleci/python:3.7
+        environment:
+          DB_URL: mysql+pymysql://root@localhost/circle_test
+      - image: circleci/mysql:8.0.3-ram
+    steps:
+      - checkout
+      - run:
+          name: "Install Project"
+          command: |
+            sudo pip install -e .[test]
+            sudo pip install PyMySQL
+      - run:
+          name: "Run Tests"
+          command: coverage run --source mortar_rdb -m pytest
+
+common: &common
+  jobs:
+    - python37-sqlite
+    - python37-postgres
+    - python37-mysql
+
+#    - python/poetry-run-tests:
+#        name: python27
+#        image: circleci/python:2.7
+#    - python/poetry-run-tests:
+#        name: python36
+#        image: circleci/python:3.6
+#    - python/poetry-run-tests:
+#        name: python37
+#        image: circleci/python:3.7
+#
+#    - python/coverage:
+#        name: coverage
+#        requires:
+#          - python27
+#          - python36
+#          - python37
+#
+#    - python/release:
+#        name: release
+#        requires:
+#          - coverage
+#        filters:
+#          branches:
+#            only: master
+
+workflows:
+  push:
+    <<: *common
+#  periodic:
+#    <<: *common
+#    triggers:
+#      - schedule:
+#          cron: "0 0 * * 4"
+#          filters:
+#            branches:
+#              only: master
