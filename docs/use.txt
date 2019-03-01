@@ -175,14 +175,14 @@ abstraction of configuring a session from obtaining a session in
 If you wish to run these tests against a particular database, rather
 than using the default in-memory SQLite database, then set the
 ``DB_URL`` enviroment variable to the SQLAlchemy url of the database
-you'd like to use. For example, if you run your tests with `nose`__
+you'd like to use. For example, if you run your tests with `pytest`__
 and are developing in a unix-like environment against a MySQL
 database, you could do::
 
-  $ DB_URL=mysql://scott:tiger@localhost/test nosetests
+  $ DB_URL=mysql://scott:tiger@localhost/test pytest
 
 
-__ http://somethingaboutorange.com/mrl/projects/nose
+__ https://docs.pytest.org/
 
 Release
 -------
