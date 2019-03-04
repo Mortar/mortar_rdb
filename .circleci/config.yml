@@ -43,110 +43,75 @@ orbs:
           - run-with-coverage:
               command: << parameters.command >>
 
-executors:
+jobs:
   sqlite:
     parameters:
-      image:
+      python:
         type: string
     docker:
-      - image: << parameters.image >>
+      - image: circleci/python:<< parameters.python >>
         environment:
           DB_URL: ""
+    steps:
+      - checkout
+      - run:
+          name: "Install Project"
+          command: |
+            sudo pip install -e .[test]
+      - run:
+          name: "Run Tests"
+          command: coverage run --source mortar_rdb -m pytest
   postgres:
     parameters:
-      image:
+      python:
         type: string
     docker:
-      - image: << parameters.image >>
+      - image: circleci/python:<< parameters.python >>
         environment:
           DB_URL: postgresql://postgres@localhost/circle_test
       - image: circleci/postgres:11.2-alpine-ram
+    steps:
+      - checkout
+      - run:
+          name: "Install Project"
+          command: |
+            sudo pip install -e .[test]
+            sudo pip install psycopg2
+      - run:
+          name: "Run Tests"
+          command: coverage run --source mortar_rdb -m pytest
   mysql:
     parameters:
-      image:
+      python:
         type: string
     docker:
-      - image: << parameters.image >>
+      - image: circleci/python:<< parameters.python >>
         environment:
           DB_URL: mysql+pymysql://root@localhost/circle_test
       - image: circleci/mysql:8.0.3-ram
-
-#jobs:
-#
-#  python37-postgres:
-#    docker:
-#      - image: circleci/python:3.7
-#        environment:
-#          DB_URL: postgresql://postgres@localhost/circle_test
-#      - image: circleci/postgres:11.2-alpine-ram
-#    steps:
-#      - checkout
-#      - run:
-#          name: "Install Project"
-#          command: |
-#            sudo pip install -e .[test]
-#            sudo pip install psycopg2
-#      - run:
-#          name: "Run Tests"
-#          command: coverage run --source mortar_rdb -m pytest
-#
-#  python37-mysql:
-#    docker:
-#      - image: circleci/python:3.7
-#        environment:
-#          DB_URL: mysql+pymysql://root@localhost/circle_test
-#      - image: circleci/mysql:8.0.3-ram
-#    steps:
-#      - checkout
-#      - run:
-#          name: "Install Project"
-#          command: |
-#            sudo pip install -e .[test]
-#            sudo pip install PyMySQL
-#      - run:
-#          name: "Run Tests"
-#          command: coverage run --source mortar_rdb -m pytest
+    steps:
+      - checkout
+      - run:
+          name: "Install Project"
+          command: |
+            sudo pip install -e .[test]
+            sudo pip install PyMySQL
+      - run:
+          name: "Run Tests"
+          command: coverage run --source mortar_rdb -m pytest
 
 common: &common
   jobs:
-    - python/pip-run-tests:
+    - sqlite:
         name: python37-sqlite
-        executor:
-          name: sqlite
-          image: circleci/python:3.7
-        command: coverage run --source mortar_rdb -m pytest
-
-    - python/pip-run-tests:
+        python: '3.7'
+    - postgres:
         name: python37-postgres
-        executor:
-          name: postgres
-          image: circleci/python:3.7
-        prepare:
-          - run: "sudo pip install psycopg2"
-        command: coverage run --source mortar_rdb -m pytest
-
-    - python/pip-run-tests:
+        python: '3.7'
+    - mysql:
         name: python37-mysql
-        executor:
-          name: mysql
-          image: circleci/python:3.7
-        prepare:
-          - run: "sudo pip install PyMySQL"
-        command: coverage run --source mortar_rdb -m pytest
+        python: '3.7'
 
-#    - python37-postgres
-#    - python37-mysql
-
-#    - python/poetry-run-tests:
-#        name: python27
-#        image: circleci/python:2.7
-#    - python/poetry-run-tests:
-#        name: python36
-#        image: circleci/python:3.6
-#    - python/poetry-run-tests:
-#        name: python37
-#        image: circleci/python:3.7
-#
 #    - python/coverage:
 #        name: coverage
 #        requires:
