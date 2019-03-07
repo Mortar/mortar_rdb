@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import make_url
+from zope.sqlalchemy.datamanager import STATUS_CHANGED
 
 from mortar_rdb import register_session
 from mortar_rdb.compat import empty_str
@@ -26,6 +27,7 @@ class TestUtility(TestCase):
         self.Session = self.m.sessionmaker.return_value
         self.r.replace('mortar_rdb.getSiteManager',self.m.getSiteManager)
         self.m.getSiteManager.return_value = self.m.registry
+        self.r.replace('mortar_rdb.register',self.m.register)
 
     def tearDown(self):
         self.r.restore()
@@ -40,10 +42,10 @@ class TestUtility(TestCase):
                  {'autocommit': False,
                   'autoflush': True,
                   'bind': self.engine,
-                  'extension': C(ZopeTransactionExtension),
                   'twophase': True,
                   },),
                 ('scoped_session', (self.Session,), {}),
+                ('register', (self.ScopedSession,), {'initial_state': STATUS_CHANGED}),
                 ('getSiteManager', (), {}),
                 ('registry.registerUtility',
                  (self.ScopedSession,),
@@ -61,10 +63,10 @@ class TestUtility(TestCase):
                  {'autocommit': False,
                   'autoflush': True,
                   'bind': self.engine,
-                  'extension': C(ZopeTransactionExtension),
                   'twophase': True,
                   },),
                 ('scoped_session', (self.Session,), {}),
+                ('register', (self.ScopedSession,), {'initial_state': STATUS_CHANGED}),
                 ('getSiteManager', (), {}),
                 ('registry.registerUtility',
                  (self.ScopedSession,),
@@ -82,9 +84,9 @@ class TestUtility(TestCase):
                  {'autocommit': False,
                   'autoflush': True,
                   'bind': self.engine,
-                  'extension': C(ZopeTransactionExtension),
                   },),
                 ('scoped_session', (self.Session,), {}),
+                ('register', (self.ScopedSession,), {'initial_state': STATUS_CHANGED}),
                 ('getSiteManager', (), {}),
                 ('registry.registerUtility',
                  (self.ScopedSession,),
@@ -101,9 +103,9 @@ class TestUtility(TestCase):
                  {'autocommit': False,
                   'autoflush': True,
                   'bind': self.engine,
-                  'extension': C(ZopeTransactionExtension)
                   },),
                 ('scoped_session', (self.Session,), {}),
+                ('register', (self.ScopedSession,), {'initial_state': STATUS_CHANGED}),
                 ('getSiteManager', (), {}),
                 ('registry.registerUtility',
                  (self.ScopedSession,),
@@ -154,9 +156,9 @@ class TestUtility(TestCase):
                  (),
                  {'autocommit': False,
                   'autoflush': True,
-                  'bind': self.m.engine2,
-                  'extension': C(ZopeTransactionExtension)}),
+                  'bind': self.m.engine2}),
                 ('scoped_session', (self.Session,), {}),
+                ('register', (self.ScopedSession,), {'initial_state': STATUS_CHANGED}),
                 ('getSiteManager', (), {}),
                 ('registry.registerUtility',
                  (self.ScopedSession,),
@@ -172,9 +174,9 @@ class TestUtility(TestCase):
                  (),
                  {'autocommit': False,
                   'autoflush': True,
-                  'bind': self.engine,
-                  'extension': C(ZopeTransactionExtension)}),
+                  'bind': self.engine}),
                 ('scoped_session', (self.Session,), {}),
+                ('register', (self.ScopedSession,), {'initial_state': STATUS_CHANGED}),
                 ('getSiteManager', (), {}),
                 ('registry.registerUtility',
                  (self.ScopedSession,),
@@ -190,9 +192,9 @@ class TestUtility(TestCase):
                  (),
                  {'autocommit': False,
                   'autoflush': True,
-                  'bind': self.engine,
-                  'extension': C(ZopeTransactionExtension)}),
+                  'bind': self.engine}),
                 ('scoped_session', (self.Session,), {}),
+                ('register', (self.ScopedSession,), {'initial_state': STATUS_CHANGED}),
                 ('getSiteManager', (), {}),
                 ('registry.registerUtility',
                  (self.ScopedSession,),
@@ -232,120 +234,6 @@ class TestUtility(TestCase):
                             transactional=True,scoped=False)
         
         compare([],self.m.method_calls)
-
-    def test_one_extension(self):
-        class TestExtension(SessionExtension):
-            pass
-        ext = TestExtension()
-        register_session('mysql://foo',extension=[ext],transactional=False)
-        compare([
-                ('create_engine', ('mysql://foo',), {'echo':None}),
-                ('sessionmaker',
-                 (),
-                 {'autocommit': False,
-                  'autoflush': True,
-                  'bind': self.engine,
-                  'extension': ext}),
-                ('scoped_session', (self.Session,), {}),
-                ('getSiteManager', (), {}),
-                ('registry.registerUtility',
-                 (self.ScopedSession,),
-                 {'name': u'',
-                  'provided': ISession})
-                ],self.m.method_calls)
-
-    def test_two_extensions(self):
-        class TestExtension1(SessionExtension):
-            pass
-        class TestExtension2(SessionExtension):
-            pass
-        ext1 = TestExtension1()
-        ext2 = TestExtension2()
-        register_session('mysql://foo',extension=[ext1,ext2],transactional=False)
-        compare([
-                ('create_engine', ('mysql://foo',), {'echo':None}),
-                ('sessionmaker',
-                 (),
-                 {'autocommit': False,
-                  'autoflush': True,
-                  'bind': self.engine,
-                  'extension': [ext1,ext2]}),
-                ('scoped_session', (self.Session,), {}),
-                ('getSiteManager', (), {}),
-                ('registry.registerUtility',
-                 (self.ScopedSession,),
-                 {'name': u'',
-                  'provided': ISession})
-                ],self.m.method_calls)
-
-    def test_one_extension_transactional(self):
-        class TestExtension(SessionExtension):
-            pass
-        ext = TestExtension()
-        register_session('mysql://foo',extension=[ext])
-        compare([
-                ('create_engine', ('mysql://foo',), {'echo':None}),
-                ('sessionmaker',
-                 (),
-                 {'autocommit': False,
-                  'autoflush': True,
-                  'bind': self.engine,
-                  'extension': [ext,C(ZopeTransactionExtension)]}),
-                ('scoped_session', (self.Session,), {}),
-                ('getSiteManager', (), {}),
-                ('registry.registerUtility',
-                 (self.ScopedSession,),
-                 {'name': u'',
-                  'provided': ISession})
-                ],self.m.method_calls)
-
-    def test_two_extensions_transactional(self):
-        class TestExtension1(SessionExtension):
-            pass
-        class TestExtension2(SessionExtension):
-            pass
-        ext1 = TestExtension1()
-        ext2 = TestExtension2()
-        register_session('mysql://foo',extension=[ext1,ext2,])
-        compare([
-                ('create_engine', ('mysql://foo',), {'echo':None}),
-                ('sessionmaker',
-                 (),
-                 {'autocommit': False,
-                  'autoflush': True,
-                  'bind': self.engine,
-                  'extension': [ext1,ext2,C(ZopeTransactionExtension)]}),
-                ('scoped_session', (self.Session,), {}),
-                ('getSiteManager', (), {}),
-                ('registry.registerUtility',
-                 (self.ScopedSession,),
-                 {'name': u'',
-                  'provided': ISession})
-                ],self.m.method_calls)
-
-    def test_two_extensions_transactional_non_list(self):
-        class TestExtension1(SessionExtension):
-            pass
-        class TestExtension2(SessionExtension):
-            pass
-        ext1 = TestExtension1()
-        ext2 = TestExtension2()
-        register_session('mysql://foo',extension=(ext1,ext2))
-        compare([
-                ('create_engine', ('mysql://foo',), {'echo':None}),
-                ('sessionmaker',
-                 (),
-                 {'autocommit': False,
-                  'autoflush': True,
-                  'bind': self.engine,
-                  'extension': [ext1,ext2,C(ZopeTransactionExtension)]}),
-                ('scoped_session', (self.Session,), {}),
-                ('getSiteManager', (), {}),
-                ('registry.registerUtility',
-                 (self.ScopedSession,),
-                 {'name': u'',
-                  'provided': ISession})
-                ],self.m.method_calls)
 
     def test_logging_normal(self):
         self.engine.url = make_url('sqlite://')

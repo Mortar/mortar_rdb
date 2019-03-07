@@ -4,7 +4,6 @@ from sqlalchemy.engine.reflection import Inspector
 from sqlalchemy.ext.declarative import declarative_base as sa_declarative_base
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.interfaces import SessionExtension
 from sqlalchemy.schema import (
     MetaData,
     Table,
@@ -13,7 +12,7 @@ from sqlalchemy.schema import (
     DropConstraint,
     )
 from zope.component import getSiteManager
-from zope.sqlalchemy import ZopeTransactionExtension
+from zope.sqlalchemy import register
 from zope.sqlalchemy.datamanager import STATUS_CHANGED
 
 from .interfaces import ISession
@@ -26,7 +25,6 @@ def register_session(url=None,
                     echo=None,
                     transactional=True,
                     scoped=True,
-                    extension=None,
                     twophase=True):
     """
     Create a :class:`~sqlalchemy.orm.session.Session` class and
@@ -60,10 +58,6 @@ def register_session(url=None,
       :meth:`~sqlalchemy.orm.session.Session.begin`/:meth:`~sqlalchemy.orm.session.Session.commit`/:meth:`~sqlalchemy.orm.session.Session.rollback`,
       as appropriate, yourself. 
 
-    :param extension: An optional :class:`~sqlalchemy.orm.interfaces.SessionExtension`
-      or sequence of :class:`~sqlalchemy.orm.interfaces.SessionExtension`
-      objects to be used with the session that is registered.
-
     :param twophase: By default two-phase transactions are used where
       supported by the underlying database. Where this causes problems,
       single-phase transactions can be used for all engines by passing this
@@ -93,31 +87,17 @@ def register_session(url=None,
             autocommit=False,
             )
 
-    if extension is None:
-        extensions = []
-    else:
-        extensions = list(extension)
-
     if transactional:
-        extensions.append(
-            ZopeTransactionExtension(
-            # We want transactions committed regardless of
-            # whether or not we use the ORM.
-            initial_state=STATUS_CHANGED,
-            ))
         if twophase and engine.dialect.name in ('postgresql', 'mysql'):
             params['twophase']=True
-
-    if extensions:
-        if len(extensions)==1:
-            params['extension']=extensions[0]
-        else:
-            params['extension']=extensions
 
     Session = sessionmaker(**params)
     
     if scoped:
         Session = scoped_session(Session)
+
+    if transactional:
+        register(Session, initial_state=STATUS_CHANGED)
     
     getSiteManager().registerUtility(
         Session,

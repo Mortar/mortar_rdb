@@ -20,8 +20,7 @@ def register_session(url=None,
                      transactional=True,
                      scoped=True,
                      config=None,
-                     metadata=None,
-                     extension=None):
+                     metadata=None):
     """
     This will create a :class:`~sqlalchemy.orm.session.Session` class for
     testing purposes and register it for later use.
@@ -71,7 +70,6 @@ def register_session(url=None,
         transactional,
         scoped,
         None,
-        extension
         )
     session = get_session(name)
     engine = session.bind

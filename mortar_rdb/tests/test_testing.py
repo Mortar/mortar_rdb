@@ -166,7 +166,7 @@ class TestRegisterSessionCalls(TestCase):
              {'poolclass': StaticPool,
               'echo': False}),
             ('realRegisterSession',
-             (None, u'', self.m.create_engine.return_value, False, True, True, None, None), {}),
+             (None, u'', self.m.create_engine.return_value, False, True, True, None), {}),
             ],self.m.method_calls)
 
     def test_specified_params(self):
@@ -179,7 +179,7 @@ class TestRegisterSessionCalls(TestCase):
             )
         compare([
                 ('realRegisterSession',
-                 ('x://', u'foo', None, True, False, False, None, None), {}),
+                 ('x://', u'foo', None, True, False, False, None), {}),
                 ],self.m.method_calls)
 
     def test_echo_but_no_url(self):
@@ -192,7 +192,7 @@ class TestRegisterSessionCalls(TestCase):
              {'poolclass': StaticPool,
               'echo': True}),
             ('realRegisterSession',
-             (None, u'', self.m.create_engine.return_value, False, True, True, None, None), {}),
+             (None, u'', self.m.create_engine.return_value, False, True, True, None), {}),
             ],self.m.method_calls)
         
 
@@ -203,7 +203,7 @@ class TestRegisterSessionCalls(TestCase):
             )
         compare([
                 ('realRegisterSession',
-                 (None, u'', engine, False, True, True, None, None), {}),
+                 (None, u'', engine, False, True, True, None), {}),
                 ],self.m.method_calls)
 
     def test_url_from_environment(self):
@@ -213,7 +213,7 @@ class TestRegisterSessionCalls(TestCase):
         register_session()
         compare([
                 ('realRegisterSession',
-                 ('x://', u'', None, False, True, True, None, None), {}),
+                 ('x://', u'', None, False, True, True, None), {}),
                 ],self.m.method_calls)
 
     def test_empty_environment_url(self):
@@ -227,7 +227,7 @@ class TestRegisterSessionCalls(TestCase):
              {'poolclass': StaticPool,
               'echo': False}),
             ('realRegisterSession',
-             ('', u'', self.m.create_engine.return_value, False, True, True, None, None), {}),
+             ('', u'', self.m.create_engine.return_value, False, True, True, None), {}),
             ],self.m.method_calls)
 
     def test_engine_overrides_environment(self):
@@ -238,17 +238,9 @@ class TestRegisterSessionCalls(TestCase):
         register_session(engine=engine)
         compare([
                 ('realRegisterSession',
-                 (None, u'', engine, False, True, True, None, None), {}),
+                 (None, u'', engine, False, True, True, None), {}),
                 ],self.m.method_calls)
 
-    def test_extension(self):
-        engine = object()
-        extension = object()
-        register_session(engine=engine,extension=extension)
-        compare([
-                ('realRegisterSession',
-                 (None, u'', engine, False, True, True, None, extension), {}),
-                ],self.m.method_calls)
 
 class TestTestingBase(TestCase):
 
