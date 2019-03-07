@@ -1,10 +1,7 @@
-|Travis|_ |Coveralls|_ |Docs|_
+|CircleCI|_ |Docs|_
 
-.. |Travis| image:: https://api.travis-ci.org/Mortar/mortar_rdb.png?branch=master
-.. _Travis: https://travis-ci.org/Mortar/mortar_rdb
-
-.. |Coveralls| image:: https://coveralls.io/repos/Mortar/mortar_rdb/badge.png?branch=master
-.. _Coveralls: https://coveralls.io/r/Mortar/mortar_rdb?branch=master
+.. |CircleCI| image:: https://circleci.com/gh/Mortar/mortar_rdb/tree/master.svg?style=shield
+.. _CircleCI: https://circleci.com/gh/Mortar/mortar_rdb/tree/master
 
 .. |Docs| image:: https://readthedocs.org/projects/mortar-rdb/badge/?version=latest
 .. _Docs: http://mortar-rdb.readthedocs.org/en/latest/
