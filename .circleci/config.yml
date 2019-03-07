@@ -1,80 +1,17 @@
 version: 2.1
 
-#orbs:
-#  python: cjw296/python-ci@1.0.2
-#
 orbs:
-  python:
-    commands:
-      run-with-coverage:
-        parameters:
-          command:
-            type: string
-        steps:
-          - run:
-              name: "Run Tests"
-              command: |
-                python --version
-                mkdir -p coverage_output
-                export COVERAGE_FILE=coverage_output/.coverage.$CIRCLE_BUILD_NUM
-                << parameters.command >>
-          - persist_to_workspace:
-              root: coverage_output
-              paths:
-                - .coverage.*
-      pip-run-tests:
-        parameters:
-          prepare:
-            type: steps
-            default: []
-          command:
-            type: string
-            default: pytest --cov
-          extra_packages:
-            type: string
-            default: ""
-        steps:
-          - checkout
-          - run:
-              name: "Install Project"
-              command: "sudo pip install << parameters.extra_packages >> -e .[test]"
-          - steps: << parameters.prepare >>
-          - run-with-coverage:
-              command: << parameters.command >>
-    jobs:
-      pip-run-tests:
-        parameters:
-          image:
-            type: string
-          prepare:
-            type: steps
-            default: []
-          command:
-            type: string
-            default: pytest --cov
-          extra_packages:
-            type: string
-            default: ""
-        docker:
-          - image: << parameters.image >>
-        steps:
-          - pip-run-tests:
-              prepare: << parameters.prepare >>
-              command: << parameters.command >>
-              extra_packages: << parameters.extra_packages >>
-
+  python: cjw296/python-ci@1.1
 
 jobs:
-#  sqlite:
-#    parameters:
-#      python:
-#        type: string
-#    docker:
-#      - image: circleci/python:<< parameters.python >>
-#        environment:
-#          DB_URL: ""
-#    steps:
-#      - python/pip-run-tests
+  sqlite:
+    parameters:
+      python:
+        type: string
+    docker:
+      - image: circleci/python:<< parameters.python >>
+    steps:
+      - python/pip-run-tests
   postgres:
     parameters:
       python:
@@ -102,8 +39,18 @@ jobs:
 
 common: &common
   jobs:
-    - python/pip-run-tests:
-        image: circleci/python:3.7
+    - sqlite:
+        name: python27-sqlite
+        python: '2.7'
+    - postgres:
+        name: python27-postgres
+        python: '2.7'
+    - mysql:
+        name: python27-mysql
+        python: '2.7'
+    - sqlite:
+        name: python37-sqlite
+        python: '3.7'
     - postgres:
         name: python37-postgres
         python: '3.7'
@@ -111,29 +58,33 @@ common: &common
         name: python37-mysql
         python: '3.7'
 
-#    - python/coverage:
-#        name: coverage
-#        requires:
-#          - python27
-#          - python36
-#          - python37
-#
-#    - python/release:
-#        name: release
-#        requires:
-#          - coverage
-#        filters:
-#          branches:
-#            only: master
+    - python/coverage:
+        name: coverage
+        requires:
+          - python27-sqlite
+          - python27-postgres
+          - python27-mysql
+          - python37-sqlite
+          - python37-postgres
+          - python37-mysql
+
+    - python/release:
+        name: release
+        config: .carthorse.yml
+        requires:
+          - coverage
+        filters:
+          branches:
+            only: master
 
 workflows:
   push:
     <<: *common
-#  periodic:
-#    <<: *common
-#    triggers:
-#      - schedule:
-#          cron: "0 0 * * 4"
-#          filters:
-#            branches:
-#              only: master
+  periodic:
+    <<: *common
+    triggers:
+      - schedule:
+          cron: "0 0 * * 4"
+          filters:
+            branches:
+              only: master
