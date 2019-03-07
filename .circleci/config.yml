@@ -41,39 +41,40 @@ orbs:
           - steps: << parameters.prepare >>
           - run-with-coverage:
               command: << parameters.command >>
-#    jobs:
-#      pip-run-tests:
-#        parameters:
-#          image:
-#            type: string
-#          command:
-#            type: string
-#            default: pytest --cov
-#          prepare:
-#            type: steps
-#            default: []
-#        docker:
-#          - image: << parameters.image >>
-#        steps:
-#          - checkout
-#          - run:
-#              name: "Install Project"
-#              command: sudo pip install -e .[test]
-#          - steps: << parameters.prepare >>
-#          - run-with-coverage:
-#              command: << parameters.command >>
+    jobs:
+      pip-run-tests:
+        parameters:
+          image:
+            type: string
+          prepare:
+            type: steps
+            default: []
+          command:
+            type: string
+            default: pytest --cov
+          extra_packages:
+            type: string
+            default: ""
+        docker:
+          - image: << parameters.image >>
+        steps:
+          - pip-run-tests:
+              prepare: << parameters.prepare >>
+              command: << parameters.command >>
+              extra_packages: << parameters.extra_packages >>
+
 
 jobs:
-  sqlite:
-    parameters:
-      python:
-        type: string
-    docker:
-      - image: circleci/python:<< parameters.python >>
-        environment:
-          DB_URL: ""
-    steps:
-      - python/pip-run-tests
+#  sqlite:
+#    parameters:
+#      python:
+#        type: string
+#    docker:
+#      - image: circleci/python:<< parameters.python >>
+#        environment:
+#          DB_URL: ""
+#    steps:
+#      - python/pip-run-tests
   postgres:
     parameters:
       python:
@@ -101,9 +102,8 @@ jobs:
 
 common: &common
   jobs:
-    - sqlite:
-        name: python37-sqlite
-        python: '3.7'
+    - python/pip-run-tests:
+        image: circleci/python:3.7
     - postgres:
         name: python37-postgres
         python: '3.7'
