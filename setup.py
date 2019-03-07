@@ -38,11 +38,10 @@ setup(
     extras_require=dict(
         test=[
             'pytest',
-            'coverage',
+            'pytest-cov',
             'mock',
             'sybil',
             'testfixtures',
-            'coveralls',
             ],
         build=[
             'sphinx',
