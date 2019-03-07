@@ -3,5 +3,6 @@
 /dist
 /develop-eggs
 /docs/_build
-.coverage*
+.coverage
+.coverage.*
 .*cache
