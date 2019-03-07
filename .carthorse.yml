@@ -1,0 +1,11 @@
+carthorse:
+  version-from: setup.py
+  tag-format: "{version}"
+  when:
+    - version-not-tagged
+  actions:
+    - run: "pip install -e .[build]"
+    - run: "python setup.py sdist bdist_wheel"
+    - run: "twine register -u chrisw -p $PYPI_PASS"
+    - run: "twine upload -u chrisw -p $PYPI_PASS dist/*"
+    - create-tag
