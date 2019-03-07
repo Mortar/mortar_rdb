@@ -22,26 +22,46 @@ orbs:
               root: coverage_output
               paths:
                 - .coverage.*
-    jobs:
       pip-run-tests:
         parameters:
-          command:
-            type: string
-            default: pytest --cov
           prepare:
             type: steps
             default: []
-          executor:
-            type: executor
-        executor: << parameters.executor >>
+          command:
+            type: string
+            default: pytest --cov
+          extra_packages:
+            type: string
+            default: ""
         steps:
           - checkout
           - run:
               name: "Install Project"
-              command: sudo pip install -e .[test]
+              command: "sudo pip install << parameters.extra_packages >> -e .[test]"
           - steps: << parameters.prepare >>
           - run-with-coverage:
               command: << parameters.command >>
+#    jobs:
+#      pip-run-tests:
+#        parameters:
+#          image:
+#            type: string
+#          command:
+#            type: string
+#            default: pytest --cov
+#          prepare:
+#            type: steps
+#            default: []
+#        docker:
+#          - image: << parameters.image >>
+#        steps:
+#          - checkout
+#          - run:
+#              name: "Install Project"
+#              command: sudo pip install -e .[test]
+#          - steps: << parameters.prepare >>
+#          - run-with-coverage:
+#              command: << parameters.command >>
 
 jobs:
   sqlite:
@@ -53,14 +73,7 @@ jobs:
         environment:
           DB_URL: ""
     steps:
-      - checkout
-      - run:
-          name: "Install Project"
-          command: |
-            sudo pip install -e .[test]
-      - run:
-          name: "Run Tests"
-          command: coverage run --source mortar_rdb -m pytest
+      - python/pip-run-tests
   postgres:
     parameters:
       python:
@@ -71,15 +84,8 @@ jobs:
           DB_URL: postgresql://postgres@localhost/circle_test
       - image: circleci/postgres:11.2-alpine-ram
     steps:
-      - checkout
-      - run:
-          name: "Install Project"
-          command: |
-            sudo pip install -e .[test]
-            sudo pip install psycopg2
-      - run:
-          name: "Run Tests"
-          command: coverage run --source mortar_rdb -m pytest
+      - python/pip-run-tests:
+          extra_packages: psycopg2
   mysql:
     parameters:
       python:
@@ -90,15 +96,8 @@ jobs:
           DB_URL: mysql+pymysql://root@localhost/circle_test
       - image: circleci/mysql:8.0.3-ram
     steps:
-      - checkout
-      - run:
-          name: "Install Project"
-          command: |
-            sudo pip install -e .[test]
-            sudo pip install PyMySQL
-      - run:
-          name: "Run Tests"
-          command: coverage run --source mortar_rdb -m pytest
+      - python/pip-run-tests:
+          extra_packages: PyMySQL
 
 common: &common
   jobs:
