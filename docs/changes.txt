@@ -3,6 +3,11 @@ Changes
 
 .. currentmodule:: mortar_rdb
 
+3.0.0 (7 Mar 2019)
+------------------
+
+- Drop support for the ancient SQLAlchemy extension mechanism.
+
 2.2.1 (15 Aug 2016)
 -------------------
 
