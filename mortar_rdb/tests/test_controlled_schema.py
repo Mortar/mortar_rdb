@@ -5,7 +5,6 @@ from testfixtures import (
     compare, TempDirectory, ShouldRaise,
     StringComparison as S
     )
-from mortar_rdb.compat import PY2
 
 from mortar_rdb.controlled import Source, scan, Config
 from mortar_rdb.testing import TestingBase
@@ -42,16 +41,10 @@ class TestSource(TestCase):
         class SomethingElse:
             pass
 
-        if PY2:
-            text = (
-                "<class mortar_rdb.tests.test_controlled_schema."
-                "SomethingElse at [0-9a-zA-Z]+>"
-            )
-        else:
-            text = (
-                "<class 'mortar_rdb.tests.test_controlled_schema."
-                "TestSource.test_class.<locals>.SomethingElse'>"
-            )
+        text = (
+            "<class 'mortar_rdb.tests.test_controlled_schema."
+            "TestSource.test_class.<locals>.SomethingElse'>"
+        )
 
         with ShouldRaise(TypeError(S(
                     text+" must be a "
@@ -70,11 +63,7 @@ class TestScan(PackageTest):
         PackageTest.tearDown(self)
         
     def test_doesnt_exist(self):
-        if PY2:
-            exc = ImportError
-        else:
-            exc = ModuleNotFoundError
-        with ShouldRaise(exc):
+        with ShouldRaise(ModuleNotFoundError):
             scan('test.package.nothere')
 
     def test_module(self):

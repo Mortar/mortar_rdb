@@ -40,15 +40,6 @@ jobs:
 common: &common
   jobs:
     - sqlite:
-        name: python27-sqlite
-        python: '2.7'
-    - postgres:
-        name: python27-postgres
-        python: '2.7'
-    - mysql:
-        name: python27-mysql
-        python: '2.7'
-    - sqlite:
         name: python37-sqlite
         python: '3.7'
     - postgres:
@@ -61,9 +52,6 @@ common: &common
     - python/coverage:
         name: coverage
         requires:
-          - python27-sqlite
-          - python27-postgres
-          - python27-mysql
           - python37-sqlite
           - python37-postgres
           - python37-mysql

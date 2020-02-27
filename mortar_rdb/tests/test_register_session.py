@@ -1,17 +1,16 @@
+from unittest import TestCase
+
+from mock import Mock
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import make_url
+from testfixtures import (
+    Replacer, compare, ShouldRaise, LogCapture
+)
 from zope.sqlalchemy.datamanager import STATUS_CHANGED
 
 from mortar_rdb import register_session
-from mortar_rdb.compat import empty_str
 from mortar_rdb.interfaces import ISession
-from mock import Mock
-from sqlalchemy.orm.interfaces import SessionExtension
-from testfixtures import (
-    Replacer, Comparison as C, compare, ShouldRaise, LogCapture
-    )
-from unittest import TestCase
-from zope.sqlalchemy import ZopeTransactionExtension
+
 
 class TestUtility(TestCase):
 
@@ -244,7 +243,7 @@ class TestUtility(TestCase):
         l.check((
                 'mortar_rdb',
                 'INFO',
-                "Registering session for sqlite:// with name "+empty_str
+                "Registering session for sqlite:// with name ''"
                 ))
 
     def test_logging_password(self):
@@ -257,7 +256,7 @@ class TestUtility(TestCase):
                 'mortar_rdb',
                 'INFO',
                 "Registering session for "
-                "mysql://user:***@localhost/db with name "+empty_str
+                "mysql://user:***@localhost/db with name ''"
                 ))
 
     def test_logging_username_password_db_same(self):
@@ -270,7 +269,7 @@ class TestUtility(TestCase):
                 'mortar_rdb',
                 'INFO',
                 "Registering session for "
-                "mysql://proj:***@localhost/proj with name "+empty_str
+                "mysql://proj:***@localhost/proj with name ''"
                 ))
 
     def test_logging_name(self):

@@ -1,5 +1,4 @@
 from mortar_rdb import register_session, get_session
-from mortar_rdb.compat import empty_str
 from mortar_rdb.interfaces import ISession
 from testfixtures.components import TestComponents
 from sqlalchemy.exc import OperationalError
@@ -203,5 +202,5 @@ class TestUtility(TestCase):
         l.check((
                 'mortar_rdb',
                 'INFO',
-                "Registering session for sqlite:// with name "+empty_str
+                "Registering session for sqlite:// with name ''"
                 ))

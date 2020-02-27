@@ -3,12 +3,12 @@ import sys
 import textwrap
 from doctest import REPORT_NDIFF, ELLIPSIS
 from functools import partial
-from mortar_rdb.compat import StringIO
+from io import StringIO
 from os.path import join
 from unittest import TextTestRunner, makeSuite
 
 from sybil import Sybil, Region
-from sybil.parsers.doctest import DocTestParser, FIX_BYTE_UNICODE_REPR
+from sybil.parsers.doctest import DocTestParser
 from sybil.parsers.codeblock import CodeBlockParser
 from sybil.parsers.capture import parse_captures
 from testfixtures import compare, TempDirectory, Replacer, OutputCapture
@@ -104,7 +104,7 @@ def teardown(namespace):
 
 pytest_collect_file = Sybil(
     parsers=[
-        DocTestParser(optionflags=REPORT_NDIFF|ELLIPSIS|FIX_BYTE_UNICODE_REPR),
+        DocTestParser(optionflags=REPORT_NDIFF|ELLIPSIS),
         parse_captures,
         CodeBlockParser(['print_function']),
         FileParser('dir'),
