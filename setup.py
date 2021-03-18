@@ -28,11 +28,11 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires = (
-        'SQLAlchemy',
+        'SQLAlchemy<1.4',
         'zope.component',
         'zope.dottedname',
         'zope.interface',
-        'zope.sqlalchemy',
+        'zope.sqlalchemy<1.2',
         ),
     extras_require=dict(
         test=[
