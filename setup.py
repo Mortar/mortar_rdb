@@ -32,7 +32,7 @@ setup(
         'zope.component',
         'zope.dottedname',
         'zope.interface',
-        'zope.sqlalchemy<1.2',
+        'zope.sqlalchemy',
         ),
     extras_require=dict(
         test=[
