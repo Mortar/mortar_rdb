@@ -29,7 +29,7 @@ setup(
     zip_safe=False,
     install_requires = (
         'SQLAlchemy<1.4',
-        'zope.component',
+        'zope.component<5',
         'zope.dottedname',
         'zope.interface',
         'zope.sqlalchemy<1.2',
