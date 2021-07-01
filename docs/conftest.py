@@ -17,7 +17,7 @@ from testfixtures.sybil import FileParser
 
 from mortar_rdb.testing import TestingBase
 
-BASHBLOCK_START = re.compile('^.+\$ ',re.MULTILINE)
+BASHBLOCK_START = re.compile(r'^.+\$ ',re.MULTILINE)
 BASHBLOCK_END = re.compile(r'(\n\Z|\n(?=\S))')
 
 
