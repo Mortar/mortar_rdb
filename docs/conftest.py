@@ -9,7 +9,7 @@ from unittest import TextTestRunner, makeSuite
 
 from sybil import Sybil, Region
 from sybil.parsers.doctest import DocTestParser
-from sybil.parsers.codeblock import CodeBlockParser
+from sybil.parsers.codeblock import PythonCodeBlockParser
 from sybil.parsers.capture import parse_captures
 from testfixtures import compare, TempDirectory, Replacer, OutputCapture
 
@@ -106,7 +106,7 @@ pytest_collect_file = Sybil(
     parsers=[
         DocTestParser(optionflags=REPORT_NDIFF|ELLIPSIS),
         parse_captures,
-        CodeBlockParser(['print_function']),
+        PythonCodeBlockParser(),
         FileParser('dir'),
         parse_bash_blocks,
     ],

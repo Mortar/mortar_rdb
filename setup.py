@@ -39,7 +39,7 @@ setup(
             'pytest',
             'pytest-cov',
             'mock',
-            'sybil',
+            'sybil>=3',
             'testfixtures',
             ],
         build=[
