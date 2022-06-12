@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  python: cjw296/python-ci@1.1
+  python: cjw296/python-ci@3
 
 jobs:
   sqlite:
@@ -9,7 +9,7 @@ jobs:
       python:
         type: string
     docker:
-      - image: circleci/python:<< parameters.python >>
+      - image: cimg/python:<< parameters.python >>
     steps:
       - python/pip-run-tests
   postgres:
@@ -17,10 +17,10 @@ jobs:
       python:
         type: string
     docker:
-      - image: circleci/python:<< parameters.python >>
+      - image: cimg/python:<< parameters.python >>
         environment:
           DB_URL: postgresql://postgres@localhost/circle_test
-      - image: circleci/postgres:11.2-alpine-ram
+      - image: cimg/postgres:11.15
     steps:
       - python/pip-run-tests:
           extra_packages: psycopg2
@@ -29,10 +29,10 @@ jobs:
       python:
         type: string
     docker:
-      - image: circleci/python:<< parameters.python >>
+      - image: cimg/python:<< parameters.python >>
         environment:
           DB_URL: mysql+pymysql://root@localhost/circle_test
-      - image: circleci/mysql:8.0.3-ram
+      - image: cimg/mysql:8.0
     steps:
       - python/pip-run-tests:
           extra_packages: PyMySQL
