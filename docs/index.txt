@@ -16,7 +16,6 @@ in a variety of projects.
 
    installation.txt
    use.txt
-   sequences.txt
 
    api.txt
 

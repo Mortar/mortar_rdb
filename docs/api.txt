@@ -19,15 +19,6 @@ mortar_rdb.testing
 .. automodule:: mortar_rdb.testing
  :members:
 
-mortar_rdb.sequence
--------------------
-
-.. automodule:: mortar_rdb.sequence
- :members:
-
-.. automodule:: mortar_rdb.sequence.generic
- :members:
-
 mortar_rdb.interfaces
 ---------------------
 
