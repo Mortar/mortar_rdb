@@ -39,3 +39,5 @@ latex_documents = [
    'Simplistix Ltd', 'manual'),
 ]
 
+exclude_patterns = ['description.txt']
+
