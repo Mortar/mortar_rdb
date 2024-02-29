@@ -177,7 +177,9 @@ than using the default in-memory SQLite database, then set the
 ``DB_URL`` enviroment variable to the SQLAlchemy url of the database
 you'd like to use. For example, if you run your tests with `pytest`__
 and are developing in a unix-like environment against a MySQL
-database, you could do::
+database, you could do:
+
+.. code-block:: bash
 
   $ DB_URL=mysql://scott:tiger@localhost/test pytest
 
