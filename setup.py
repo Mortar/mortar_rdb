@@ -40,7 +40,7 @@ setup(
             'pytest-cov',
             'mock',
             'sybil>=3',
-            'testfixtures',
+            'testfixtures<8',
             ],
         build=[
             'sphinx',
