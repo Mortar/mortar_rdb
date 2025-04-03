@@ -1,10 +1,9 @@
-|CircleCI|_ |Docs|_
-
-.. |CircleCI| image:: https://circleci.com/gh/Mortar/mortar_rdb/tree/master.svg?style=shield
-.. _CircleCI: https://circleci.com/gh/Mortar/mortar_rdb/tree/master
+|Docs|_
 
 .. |Docs| image:: https://readthedocs.org/projects/mortar-rdb/badge/?version=latest
 .. _Docs: http://mortar-rdb.readthedocs.org/en/latest/
+
+*This project has been retired. The functionality it provided is now available in SQLAlchemy directly*
 
 mortar_rdb
 ==========
